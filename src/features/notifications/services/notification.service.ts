@@ -1,0 +1,1 @@
+export { notificationService } from '@/services/notification.service'
