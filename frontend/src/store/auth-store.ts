@@ -10,9 +10,9 @@ interface AuthState {
   isLoading: boolean
 
   setUser: (user: User) => void
-  setTokens: (accessToken: string, refreshToken: string) => void
+  setTokens: (accessToken: string, refreshToken?: string) => void
   setLoading: (isLoading: boolean) => void
-  login: (user: User, accessToken: string, refreshToken: string) => void
+  login: (user: User, accessToken: string, refreshToken?: string) => void
   logout: () => void
   updateUser: (data: Partial<User>) => void
 }
@@ -28,7 +28,7 @@ export const useAuthStore = create<AuthState>()(
 
       setUser: (user) => set({ user }),
 
-      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken, isAuthenticated: true }),
+      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken: refreshToken || null, isAuthenticated: true }),
 
       setLoading: (isLoading) => set({ isLoading }),
 
@@ -36,7 +36,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           user,
           accessToken,
-          refreshToken,
+          refreshToken: refreshToken || null,
           isAuthenticated: true,
           isLoading: false,
         }),
@@ -58,7 +58,6 @@ export const useAuthStore = create<AuthState>()(
       name: 'hiregen-auth',
       partialize: (state) => ({
         accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),

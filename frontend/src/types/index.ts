@@ -1,10 +1,10 @@
 export interface User {
-  id: string
+  id: number | string
   email: string
   name: string
   avatar?: string
-  role: 'admin' | 'recruiter' | 'hiring_manager' | 'interviewer' | 'candidate'
-  companyId: string
+  role: 'admin' | 'recruiter' | 'candidate'
+  companyId?: string
   createdAt: string
   updatedAt: string
 }

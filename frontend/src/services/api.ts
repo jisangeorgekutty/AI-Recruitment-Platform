@@ -21,8 +21,9 @@ const processQueue = (error: unknown, token: string | null = null) => {
 }
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5101/api',
   timeout: 30000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -57,19 +58,15 @@ api.interceptors.response.use(
       originalRequest._retry = true
       isRefreshing = true
 
-      const refreshToken = useAuthStore.getState().refreshToken
-      if (!refreshToken) {
-        useAuthStore.getState().logout()
-        return Promise.reject(error)
-      }
-
       try {
+        const refreshToken = useAuthStore.getState().refreshToken
         const response = await axios.post(
           `${api.defaults.baseURL}/auth/refresh`,
-          { refreshToken },
+          { refreshToken: refreshToken || '' },
+          { withCredentials: true }
         )
         const { accessToken, refreshToken: newRefreshToken } = response.data.data
-        useAuthStore.getState().setTokens(accessToken, newRefreshToken)
+        useAuthStore.getState().setTokens(accessToken, newRefreshToken || '')
         processQueue(null, accessToken)
         originalRequest.headers.Authorization = `Bearer ${accessToken}`
         return api(originalRequest)

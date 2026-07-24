@@ -67,16 +67,16 @@ function getDefaultDashboard(role: string | undefined): string {
 
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
   const stored = localStorage.getItem('hiregen-auth')
-  // if (!stored) {
-  //   return <Navigate to="/login" replace />
-  // }
-  // try {
-  //   const parsed = JSON.parse(stored)
-  //   const role = parsed?.state?.user?.role
-  //   if (allowedRoles && role && !allowedRoles.includes(role)) {
-  //     return <Navigate to={getDefaultDashboard(role)} replace />
-  //   }
-  // } catch { }
+  if (!stored) {
+    return <Navigate to="/login" replace />
+  }
+  try {
+    const parsed = JSON.parse(stored)
+    const role = parsed?.state?.user?.role
+    if (allowedRoles && role && !allowedRoles.includes(role)) {
+      return <Navigate to={getDefaultDashboard(role)} replace />
+    }
+  } catch { }
   return <>{children}</>
 }
 
@@ -97,7 +97,7 @@ const routes: RouteObject[] = [
   {
     path: '/recruiter',
     element: (
-      <ProtectedRoute allowedRoles={['admin', 'recruiter', 'hiring_manager', 'interviewer']}>
+      <ProtectedRoute allowedRoles={['admin', 'recruiter']}>
         <DashboardLayout />
       </ProtectedRoute>
     ),

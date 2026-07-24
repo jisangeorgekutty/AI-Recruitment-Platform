@@ -10,7 +10,8 @@ interface RegisterRequest {
   name: string
   email: string
   password: string
-  companyName: string
+  role?: 'candidate' | 'recruiter' | 'admin'
+  companyName?: string
 }
 
 interface AuthResponse {
@@ -27,6 +28,14 @@ export const authService = {
 
   async register(data: RegisterRequest) {
     const response = await api.post<ApiResponse<AuthResponse>>('/auth/register', data)
+    return response.data.data
+  },
+
+  async googleLogin(role?: string, idToken?: string) {
+    if (!idToken) {
+      throw new Error('Google sign-in token is missing.')
+    }
+    const response = await api.post<ApiResponse<AuthResponse>>('/auth/google', { role, idToken })
     return response.data.data
   },
 
