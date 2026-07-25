@@ -9,7 +9,7 @@ import { Avatar } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { ErrorState } from '@/components/error-state'
 import { candidateService } from '@/services/candidate.service'
-import { STAGE_LABELS, STAGE_COLORS } from '@/features/candidates/types'
+import { STAGE_LABELS, STAGE_COLORS } from '@/features/applicants/types'
 import type { CandidateStage, Candidate } from '@/types'
 import { ScrollArea } from '@/components/ui/scroll-area'
 

@@ -12,8 +12,11 @@ import { PageHeader } from '@/components/page-header'
 import { Plus, X, Link2, Globe } from 'lucide-react'
 import toast from 'react-hot-toast'
 
+import { AvatarUpload } from '@/components/ui/avatar-upload'
+
 export default function CandidateProfilePage() {
   const [activeTab, setActiveTab] = useState('personal')
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined)
   const [skills, setSkills] = useState(['React', 'TypeScript', 'Node.js', 'GraphQL', 'AWS', 'Docker'])
   const [newSkill, setNewSkill] = useState('')
   const [languages, setLanguages] = useState(['English (Native)', 'Spanish (Professional)'])
@@ -33,7 +36,12 @@ export default function CandidateProfilePage() {
         <div className="h-32 bg-gradient-to-r from-primary/20 via-primary/10 to-background" />
         <CardContent className="relative px-6 pb-6">
           <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12">
-            <Avatar name="John Doe" size="xl" className="border-4 border-background" />
+            <AvatarUpload
+              name="John Doe"
+              currentSrc={avatarUrl}
+              size="xl"
+              onImageChange={(uri) => setAvatarUrl(uri)}
+            />
             <div className="flex-1 sm:pb-2">
               <h2 className="text-xl font-bold">John Doe</h2>
               <p className="text-sm text-muted-foreground">Senior Frontend Engineer</p>

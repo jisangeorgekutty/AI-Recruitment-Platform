@@ -10,10 +10,13 @@ import { useThemeStore } from '@/store/theme-store'
 import { useAuthStore } from '@/store/auth-store'
 import toast from 'react-hot-toast'
 
+import { AvatarUpload } from '@/components/ui/avatar-upload'
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile')
   const { theme, setTheme } = useThemeStore()
   const user = useAuthStore((state) => state.user)
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(user?.avatar)
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
@@ -37,14 +40,27 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Profile Information</CardTitle>
-            <CardDescription>Update your personal details</CardDescription>
+            <CardDescription>Update your personal details and avatar</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            <div className="flex items-center gap-4 border-b pb-4">
+              <AvatarUpload
+                name={user?.name || 'Recruiter User'}
+                currentSrc={avatarUrl}
+                size="xl"
+                onImageChange={(uri) => setAvatarUrl(uri)}
+              />
+              <div>
+                <h3 className="font-semibold">{user?.name || 'Recruiter User'}</h3>
+                <p className="text-xs text-muted-foreground">Click the avatar or camera icon to upload a new profile picture</p>
+              </div>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               <Input id="name" label="Full Name" defaultValue={user?.name || ''} placeholder="John Doe" />
               <Input id="email" label="Email" defaultValue={user?.email || ''} placeholder="john@company.com" type="email" />
             </div>
-            <Input id="avatar" label="Avatar URL" defaultValue={user?.avatar || ''} placeholder="https://..." />
+            <Input id="avatar" label="Avatar URL" value={avatarUrl || ''} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://..." />
             <div className="flex justify-end">
               <Button onClick={() => toast.success('Profile updated')}>Save Changes</Button>
             </div>

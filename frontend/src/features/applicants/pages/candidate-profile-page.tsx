@@ -12,7 +12,7 @@ import { LoadingSkeleton } from '@/components/loading-skeleton'
 import { Tabs, TabPanel } from '@/components/ui/tabs'
 import { formatDate } from '@/lib/utils'
 import { candidateService } from '@/services/candidate.service'
-import { STAGE_LABELS } from '@/features/candidates/types'
+import { STAGE_LABELS } from '@/features/applicants/types'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
 
