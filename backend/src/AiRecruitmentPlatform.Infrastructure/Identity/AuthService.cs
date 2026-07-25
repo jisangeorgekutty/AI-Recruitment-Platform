@@ -11,7 +11,6 @@ using AiRecruitmentPlatform.Application.DTOs.Authentication;
 using AiRecruitmentPlatform.Application.DTOs.Framework;
 using AiRecruitmentPlatform.Application.DTOs.Registration;
 using AiRecruitmentPlatform.Application.Interfaces.Services;
-using AiRecruitmentPlatform.Application.Services;
 using AiRecruitmentPlatform.Infrastructure.Identity.Models;
 using AiRecruitmentPlatform.Infrastructure.Persistence;
 using Google.Apis.Auth;

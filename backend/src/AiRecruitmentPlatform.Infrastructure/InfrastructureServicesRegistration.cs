@@ -75,9 +75,12 @@ namespace AiRecruitmentPlatform.Infrastructure
             services.AddHttpContextAccessor();
 
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<ICandidateProfileRepository, CandidateProfileRepository>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<ICandidateProfileService, CandidateProfileService>();
 
             return services;
         }

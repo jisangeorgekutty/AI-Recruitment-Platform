@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using AiRecruitmentPlatform.Application.DTOs.Authentication;
 using AiRecruitmentPlatform.Application.DTOs.Common;
 using AiRecruitmentPlatform.Application.DTOs.Registration;
-using AiRecruitmentPlatform.Application.Services;
+using AiRecruitmentPlatform.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

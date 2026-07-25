@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using AiRecruitmentPlatform.Application.DTOs.Authentication;
 using AiRecruitmentPlatform.Application.DTOs.Registration;
 
-namespace AiRecruitmentPlatform.Application.Services
+namespace AiRecruitmentPlatform.Application.Interfaces.Services
 {
     public interface IAuthService
     {

@@ -40,7 +40,6 @@ export function AvatarUpload({
     reader.onload = () => {
       const result = reader.result as string
       setPreviewSrc(result)
-      toast.success('Avatar image updated!')
       onImageChange?.(result, file)
     }
     reader.readAsDataURL(file)

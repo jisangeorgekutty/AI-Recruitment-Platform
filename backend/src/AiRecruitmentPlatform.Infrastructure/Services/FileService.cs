@@ -1,14 +1,12 @@
-﻿using AiRecruitmentPlatform.Application.Interfaces.Services;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
+using AiRecruitmentPlatform.Application.Interfaces.Services;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace AiRecruitmentPlatform.Infrastructure.Services
 {
@@ -19,32 +17,59 @@ namespace AiRecruitmentPlatform.Infrastructure.Services
             try
             {
                 await using var stream = imageFile.OpenReadStream();
+                var ext = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+                var isRaw = ext is ".pdf" or ".doc" or ".docx" or ".zip";
 
-                var uploadParams = new ImageUploadParams()
+                if (isRaw)
                 {
-                    File = new FileDescription(imageFile.FileName, stream),
-                    Folder = folder
-                };
+                    var rawParams = new RawUploadParams
+                    {
+                        File = new FileDescription(imageFile.FileName, stream),
+                        Folder = folder
+                    };
 
-                var uploadResult = await cloudinary.UploadAsync(uploadParams);
+                    var rawResult = await cloudinary.UploadAsync(rawParams);
 
-                if (uploadResult.Error != null)
-                {
-                    logger.LogError("Cloudinary upload failed: {Error}", uploadResult.Error.Message);
-                    return null;
+                    if (rawResult.Error != null)
+                    {
+                        logger.LogError("Cloudinary raw upload failed: {Error}", rawResult.Error.Message);
+                        return null;
+                    }
+
+                    if (!string.IsNullOrEmpty(rawResult.SecureUrl?.ToString()))
+                    {
+                        logger.LogInformation("Raw document uploaded successfully: {Url}", rawResult.SecureUrl.ToString());
+                        return rawResult.SecureUrl.ToString();
+                    }
                 }
-
-                if (!string.IsNullOrEmpty(uploadResult.SecureUrl?.ToString()))
+                else
                 {
-                    logger.LogInformation("Image uploaded successfully: {ImageUrl}", uploadResult.SecureUrl.ToString());
-                    return uploadResult.SecureUrl.ToString();
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(imageFile.FileName, stream),
+                        Folder = folder
+                    };
+
+                    var uploadResult = await cloudinary.UploadAsync(uploadParams);
+
+                    if (uploadResult.Error != null)
+                    {
+                        logger.LogError("Cloudinary image upload failed: {Error}", uploadResult.Error.Message);
+                        return null;
+                    }
+
+                    if (!string.IsNullOrEmpty(uploadResult.SecureUrl?.ToString()))
+                    {
+                        logger.LogInformation("Image uploaded successfully: {ImageUrl}", uploadResult.SecureUrl.ToString());
+                        return uploadResult.SecureUrl.ToString();
+                    }
                 }
 
                 return null;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error uploading image to Cloudinary");
+                logger.LogError(ex, "Error uploading file to Cloudinary");
                 return null;
             }
         }
@@ -74,19 +99,18 @@ namespace AiRecruitmentPlatform.Infrastructure.Services
 
                 if (result.Result == "ok")
                 {
-                    logger.LogInformation("Image deleted successfully: {PublicId}", publicId);
+                    logger.LogInformation("File deleted successfully: {PublicId}", publicId);
                     return true;
                 }
 
-                logger.LogWarning("Failed to delete image: {PublicId}", publicId);
+                logger.LogWarning("Failed to delete file: {PublicId}", publicId);
                 return false;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error deleting image from Cloudinary: {PublicId}", publicId);
+                logger.LogError(ex, "Error deleting file from Cloudinary: {PublicId}", publicId);
                 return false;
             }
         }
     }
-
 }

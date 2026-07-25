@@ -1,4 +1,5 @@
-﻿using AiRecruitmentPlatform.Domain.Entities.Common;
+using AiRecruitmentPlatform.Domain.Entities.Common;
+using AiRecruitmentPlatform.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,6 +17,13 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<long>, long>
     {
+        public DbSet<CandidateProfileInformation> CandidateProfileInformations { get; set; } = null!;
+        public DbSet<CandidateSocialLink> CandidateSocialLinks { get; set; } = null!;
+        public DbSet<CandidateExperience> CandidateExperiences { get; set; } = null!;
+        public DbSet<CandidateEducation> CandidateEducations { get; set; } = null!;
+        public DbSet<CandidateSkill> CandidateSkills { get; set; } = null!;
+        public DbSet<CandidateLanguage> CandidateLanguages { get; set; } = null!;
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
