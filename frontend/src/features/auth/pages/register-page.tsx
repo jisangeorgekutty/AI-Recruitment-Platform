@@ -41,7 +41,9 @@ export default function RegisterPage() {
     setIsLoading(true)
     try {
       await authService.register({
-        name: data.name,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        name: `${data.firstName} ${data.lastName}`.trim(),
         email: data.email,
         password: data.password,
         companyName: data.role === 'recruiter' ? data.companyName : undefined,
@@ -142,13 +144,22 @@ export default function RegisterPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Input
-          id="name"
-          label="Full Name"
-          placeholder="John Doe"
-          error={errors.name?.message}
-          {...register('name')}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            id="firstName"
+            label="First Name"
+            placeholder="John"
+            error={errors.firstName?.message}
+            {...register('firstName')}
+          />
+          <Input
+            id="lastName"
+            label="Last Name"
+            placeholder="Doe"
+            error={errors.lastName?.message}
+            {...register('lastName')}
+          />
+        </div>
         <Input
           id="email"
           label="Email"

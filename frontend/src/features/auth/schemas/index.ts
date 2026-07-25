@@ -8,7 +8,8 @@ export const loginSchema = z.object({
 export const registerSchema = z
   .object({
     role: z.enum(['candidate', 'recruiter']),
-    name: z.string().min(2, 'Name must be at least 2 characters'),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
     email: z.string().email('Please enter a valid email address'),
     companyName: z.string().optional(),
     password: z

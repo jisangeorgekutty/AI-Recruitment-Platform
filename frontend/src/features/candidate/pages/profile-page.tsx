@@ -20,11 +20,19 @@ export default function CandidateProfilePage() {
   const [skills, setSkills] = useState(['React', 'TypeScript', 'Node.js', 'GraphQL', 'AWS', 'Docker'])
   const [newSkill, setNewSkill] = useState('')
   const [languages, setLanguages] = useState(['English (Native)', 'Spanish (Professional)'])
+  const [newLanguage, setNewLanguage] = useState('')
 
   const addSkill = () => {
-    if (newSkill && !skills.includes(newSkill)) {
-      setSkills([...skills, newSkill])
+    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
+      setSkills([...skills, newSkill.trim()])
       setNewSkill('')
+    }
+  }
+
+  const addLanguage = () => {
+    if (newLanguage.trim() && !languages.includes(newLanguage.trim())) {
+      setLanguages([...languages, newLanguage.trim()])
+      setNewLanguage('')
     }
   }
 
@@ -102,8 +110,29 @@ export default function CandidateProfilePage() {
             <Separator />
             <div>
               <p className="text-sm font-medium mb-3">Languages</p>
-              <div className="flex flex-wrap gap-2">
-                {languages.map((lang) => (<Badge key={lang} variant="secondary">{lang}</Badge>))}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {languages.map((lang) => (
+                  <Badge key={lang} variant="secondary" className="gap-1 pr-1">
+                    {lang}
+                    <button
+                      onClick={() => setLanguages(languages.filter((l) => l !== lang))}
+                      className="ml-1 rounded-full p-0.5 hover:bg-muted"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add a language (e.g. French - Native)..."
+                  value={newLanguage}
+                  onChange={(e) => setNewLanguage(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addLanguage())}
+                />
+                <Button variant="outline" onClick={addLanguage}>
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </CardContent>
