@@ -51,6 +51,9 @@ For every backend and frontend feature built in this repository, follow this exa
 - Extract logged-in user identity using `User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("uid")`.
 
 ### 5. Frontend Layer (`frontend/src`)
+- **Reuse Existing UI Shells & Pages FIRST (DO NOT Create Duplicate UI Pages)**:
+  - BEFORE building any frontend feature, ALWAYS inspect `frontend/src/features/[feature]/pages/` and `components/` to check for pre-existing UI mockups or layout page shells.
+  - **MANDATORY RULE**: Always preserve, update, and reuse existing UI layouts, design aesthetics, and components. NEVER re-create or duplicate an existing UI page shell from scratch. Instead, wire up and connect the existing page UI to real backend API endpoints via Axios services, Zustand stores, and `@tanstack/react-query` state.
 - **API Services (`services/[feature].service.ts`)**: Define Axios calls wrapping the standard `api` client. For `FormData` file uploads, explicitly pass `headers: { 'Content-Type': 'multipart/form-data' }`.
 - **Zustand Stores (`store/`)**: MANDATORY for all feature states (e.g. `company-store.ts`, `auth-store.ts`, `notification-store.ts`, `job-store.ts`, `candidate-store.ts`). Every frontend feature MUST create or update a dedicated Zustand store in `store/` to maintain and sync global client state alongside `@tanstack/react-query` server state.
 - **Pages & Components (`features/[feature]/pages/`)**: Use `@tanstack/react-query` (`useQuery`, `useMutation`) for server state and real-time toast notifications (`react-hot-toast`), while syncing state updates into the corresponding Zustand store.

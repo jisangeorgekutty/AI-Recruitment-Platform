@@ -72,6 +72,7 @@ namespace AiRecruitmentPlatform.Application.Profiles
 
             CreateMap<CandidateResume, CandidateResumeDto>().ReverseMap();
             CreateMap<CandidateSavedJob, DTOs.Job.CandidateSavedJobDto>().ReverseMap();
+            CreateMap<CandidateResumeAnalysis, CandidateResumeDto>().ReverseMap();
         }
     }
 }

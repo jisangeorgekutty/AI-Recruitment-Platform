@@ -16,10 +16,12 @@ namespace AiRecruitmentPlatform.Api.Controllers
     public class CandidateResumeController : ControllerBase
     {
         private readonly ICandidateResumeService _resumeService;
+        private readonly IAiResumeAnalysisService _aiAnalysisService;
 
-        public CandidateResumeController(ICandidateResumeService resumeService)
+        public CandidateResumeController(ICandidateResumeService resumeService, IAiResumeAnalysisService aiAnalysisService)
         {
             _resumeService = resumeService;
+            _aiAnalysisService = aiAnalysisService;
         }
 
         [HttpPost]
@@ -87,6 +89,40 @@ namespace AiRecruitmentPlatform.Api.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ApiResponse<bool>.FailureResult(ex.Message));
+            }
+        }
+
+        [HttpPost("{id:long}/analyze-ats")]
+        public async Task<ActionResult<ApiResponse<ResumeAtsAnalysisDto>>> AnalyzeAts(long id)
+        {
+            try
+            {
+                var userId = User.GetCurrentUserId();
+                var result = await _aiAnalysisService.AnalyzeResumeAsync(userId, id);
+                return Ok(ApiResponse<ResumeAtsAnalysisDto>.SuccessResult(result, "AI ATS Analysis completed successfully."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<ResumeAtsAnalysisDto>.FailureResult(ex.Message));
+            }
+        }
+
+        [HttpGet("{id:long}/ats-analysis")]
+        public async Task<ActionResult<ApiResponse<ResumeAtsAnalysisDto>>> GetAtsAnalysis(long id)
+        {
+            try
+            {
+                var userId = User.GetCurrentUserId();
+                var result = await _aiAnalysisService.GetLatestAnalysisAsync(userId, id);
+                if (result == null)
+                {
+                    return NotFound(ApiResponse<ResumeAtsAnalysisDto>.FailureResult("No ATS analysis found for this resume."));
+                }
+                return Ok(ApiResponse<ResumeAtsAnalysisDto>.SuccessResult(result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<ResumeAtsAnalysisDto>.FailureResult(ex.Message));
             }
         }
     }

@@ -88,12 +88,17 @@ namespace AiRecruitmentPlatform.Infrastructure
             services.AddScoped<IJobPostingRepository, JobPostingRepository>();
             services.AddScoped<IJobPostingService, JobPostingService>();
             services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
+            services.Configure<Configuration.GeminiSettings>(configuration.GetSection("GeminiSettings"));
+            services.AddHttpClient<IGeminiApiService, GeminiApiService>();
+
             services.AddScoped<ICandidateResumeRepository, CandidateResumeRepository>();
             services.AddScoped<ICandidateSavedJobRepository, CandidateSavedJobRepository>();
+            services.AddScoped<ICandidateResumeAnalysisRepository, CandidateResumeAnalysisRepository>();
             services.AddScoped<IJobSearchService, JobSearchService>();
             services.AddScoped<IJobApplicationService, JobApplicationService>();
             services.AddScoped<ICandidateResumeService, CandidateResumeService>();
             services.AddScoped<ICandidateSavedJobService, CandidateSavedJobService>();
+            services.AddScoped<IAiResumeAnalysisService, AiResumeAnalysisService>();
 
             return services;
         }

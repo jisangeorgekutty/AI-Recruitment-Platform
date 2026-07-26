@@ -13,6 +13,23 @@ export interface CandidateResumeItem {
   uploadedAt: string
 }
 
+export interface ResumeAtsSuggestion {
+  text: string
+  type: 'improvement' | 'warning' | 'suggestion' | 'success' | string
+}
+
+export interface ResumeAtsAnalysis {
+  id: number
+  candidateResumeId: number
+  candidateProfileId: number
+  overallScore: number
+  keywordMatchScore: number
+  formatCompatibilityScore: number
+  sectionCompletenessScore: number
+  suggestions: ResumeAtsSuggestion[]
+  analyzedAt: string
+}
+
 export const candidateResumeService = {
   async getMyResumes() {
     const response = await api.get<ApiResponse<CandidateResumeItem[]>>('/candidate-resumes')
@@ -37,6 +54,16 @@ export const candidateResumeService = {
 
   async deleteResume(id: number | string) {
     const response = await api.delete<ApiResponse<boolean>>(`/candidate-resumes/${id}`)
+    return response.data.data
+  },
+
+  async analyzeAts(id: number | string) {
+    const response = await api.post<ApiResponse<ResumeAtsAnalysis>>(`/candidate-resumes/${id}/analyze-ats`)
+    return response.data.data
+  },
+
+  async getAtsAnalysis(id: number | string) {
+    const response = await api.get<ApiResponse<ResumeAtsAnalysis>>(`/candidate-resumes/${id}/ats-analysis`)
     return response.data.data
   },
 }
