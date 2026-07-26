@@ -21,6 +21,7 @@ For every backend and frontend feature built in this repository, follow this exa
 - **Application Services (`Services/`)**:
   - All feature business services (e.g. `CandidateProfileService`, `RecruiterProfileService`, `JobPostingService`) MUST be placed in `Application/Services/`.
   - **Identity Abstraction (`IIdentityService`)**: Application services must NEVER inject `UserManager<ApplicationUser>` or ASP.NET Core Identity directly in the Application layer. Instead, inject `IIdentityService` (defined in `Interfaces/Services/IIdentityService.cs`) to get or update user details (`FirstName`, `LastName`, `Email`, `PhoneNumber`, `AvatarUrl`) on `ApplicationUser`.
+  - **AutoMapper Usage (`IMapper`)**: For mapping between Domain Entities and DTOs (and vice-versa), always inject `IMapper` into Application Services. Configure mapping profiles in `Profiles/MappingProfile.cs`. Avoid writing verbose manual property assignment loops in services.
 - **Service Interfaces (`Interfaces/Services/`)**:
   - Define clear application service interfaces (e.g., `ICandidateProfileService`, `IAuthService`, `IIdentityService`, `IFileService`, `IEmailService`) inside `Interfaces/Services/`.
 - **DTO Organization Rules (`DTOs/[Feature]/`)**:

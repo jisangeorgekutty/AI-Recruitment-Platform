@@ -1,4 +1,6 @@
-﻿using AiRecruitmentPlatform.Application.DTOs.Common;
+using AiRecruitmentPlatform.Application.DTOs.Candidate;
+using AiRecruitmentPlatform.Application.DTOs.Common;
+using AiRecruitmentPlatform.Domain.Entities;
 using AiRecruitmentPlatform.Domain.Entities.Common;
 using AutoMapper;
 using System;
@@ -28,6 +30,17 @@ namespace AiRecruitmentPlatform.Application.Profiles
 
             CreateMap<int?, int>().ConvertUsing((src, dest) => src ?? dest);
 
+            // Candidate Profile Mappings
+            CreateMap<CandidateProfileInformation, CandidateProfileDto>()
+                .ForMember(dest => dest.ProfileInformationId, opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<CandidateSocialLink, CandidateSocialLinksDto>().ReverseMap();
+            CreateMap<UpdateCandidateSocialLinksRequest, CandidateSocialLink>();
+            CreateMap<UpdateCandidatePersonalInfoRequest, CandidateProfileInformation>();
+            CreateMap<CandidateExperience, CandidateExperienceDto>().ReverseMap();
+            CreateMap<CandidateEducation, CandidateEducationDto>().ReverseMap();
+            CreateMap<CandidateSkill, CandidateSkillDto>().ReverseMap();
+            CreateMap<CandidateLanguage, CandidateLanguageDto>().ReverseMap();
         }
     }
 }
