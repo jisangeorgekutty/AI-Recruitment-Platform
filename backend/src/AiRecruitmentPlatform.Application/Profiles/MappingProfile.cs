@@ -41,6 +41,16 @@ namespace AiRecruitmentPlatform.Application.Profiles
             CreateMap<CandidateEducation, CandidateEducationDto>().ReverseMap();
             CreateMap<CandidateSkill, CandidateSkillDto>().ReverseMap();
             CreateMap<CandidateLanguage, CandidateLanguageDto>().ReverseMap();
+
+            // Settings Mappings
+            CreateMap<RecruiterNotificationPreference, DTOs.Settings.RecruiterNotificationPreferenceDto>().ReverseMap();
+            CreateMap<DTOs.Settings.UpdateRecruiterNotificationPreferenceRequest, RecruiterNotificationPreference>();
+
+            // Company Profile Mappings
+            CreateMap<CompanyProfile, DTOs.Company.CompanyProfileDto>().ReverseMap();
+            CreateMap<DTOs.Company.UpdateCompanyProfileRequest, CompanyProfile>();
         }
     }
 }
+
+

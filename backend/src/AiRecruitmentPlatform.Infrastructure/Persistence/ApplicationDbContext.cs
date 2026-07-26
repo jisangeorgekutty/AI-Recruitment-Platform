@@ -23,6 +23,8 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence
         public DbSet<CandidateEducation> CandidateEducations { get; set; } = null!;
         public DbSet<CandidateSkill> CandidateSkills { get; set; } = null!;
         public DbSet<CandidateLanguage> CandidateLanguages { get; set; } = null!;
+        public DbSet<RecruiterNotificationPreference> RecruiterNotificationPreferences { get; set; } = null!;
+        public DbSet<CompanyProfile> CompanyProfiles { get; set; } = null!;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

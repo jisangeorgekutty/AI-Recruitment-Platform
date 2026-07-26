@@ -10,15 +10,24 @@ export interface User {
 }
 
 export interface Company {
-  id: string
-  name: string
+  id?: number | string
+  userId?: number
+  companyName: string
+  companyLogoUrl?: string
+  name?: string
   logo?: string
   website?: string
   industry?: string
+  companySize?: string
   size?: string
   description?: string
-  createdAt: string
-  updatedAt: string
+  location?: string
+  contactEmail?: string
+  contactPhone?: string
+  establishedYear?: number
+  registrationNumber?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface Job {

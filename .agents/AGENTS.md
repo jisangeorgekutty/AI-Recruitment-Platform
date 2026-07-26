@@ -33,6 +33,8 @@ For every backend and frontend feature built in this repository, follow this exa
 ### 3. Infrastructure Layer (`AiRecruitmentPlatform.Infrastructure`)
 - **Persistence (`Persistence/`)**:
   - `ApplicationDbContext.cs` manages DbSets. Table names and columns automatically follow `UseSnakeCaseNamingConvention()`.
+  - **EF Core Migrations (`Persistence/Migrations/`)**: All database migrations MUST be placed inside `Persistence/Migrations/` using command:
+    `dotnet ef migrations add <Name> --project src/AiRecruitmentPlatform.Infrastructure --startup-project src/AiRecruitmentPlatform.Api --output-dir Persistence/Migrations`
 - **Repositories (`Repositories/`)**:
   - Implement concrete repositories in `Repositories/` (e.g., `[Feature]Repository : GenericRepository<T>, I[Feature]Repository`).
 - **Identity Implementations (`Identity/`)**:
@@ -50,5 +52,6 @@ For every backend and frontend feature built in this repository, follow this exa
 
 ### 5. Frontend Layer (`frontend/src`)
 - **API Services (`services/[feature].service.ts`)**: Define Axios calls wrapping the standard `api` client. For `FormData` file uploads, explicitly pass `headers: { 'Content-Type': 'multipart/form-data' }`.
-- **Zustand Stores (`store/`)**: Use Zustand for global UI, session, and filter states.
-- **Pages & Components (`features/[feature]/pages/`)**: Use `@tanstack/react-query` (`useQuery`, `useMutation`) for server state and real-time toast notifications (`react-hot-toast`).
+- **Zustand Stores (`store/`)**: MANDATORY for all feature states (e.g. `company-store.ts`, `auth-store.ts`, `notification-store.ts`, `job-store.ts`, `candidate-store.ts`). Every frontend feature MUST create or update a dedicated Zustand store in `store/` to maintain and sync global client state alongside `@tanstack/react-query` server state.
+- **Pages & Components (`features/[feature]/pages/`)**: Use `@tanstack/react-query` (`useQuery`, `useMutation`) for server state and real-time toast notifications (`react-hot-toast`), while syncing state updates into the corresponding Zustand store.
+

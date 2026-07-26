@@ -249,7 +249,17 @@ namespace AiRecruitmentPlatform.Infrastructure.Identity
                 throw new InvalidOperationException("User not found.");
             }
 
-            if (!string.IsNullOrWhiteSpace(request.Name))
+            if (!string.IsNullOrWhiteSpace(request.FirstName))
+            {
+                user.FirstName = request.FirstName.Trim();
+            }
+
+            if (request.LastName != null)
+            {
+                user.LastName = request.LastName.Trim();
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Name) && string.IsNullOrWhiteSpace(request.FirstName))
             {
                 var parts = request.Name.Trim().Split(' ', 2);
                 user.FirstName = parts[0];
@@ -272,6 +282,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Identity
 
             return await BuildUserProfileResponseAsync(user);
         }
+
 
         public async Task ChangePasswordAsync(long userId, ChangePasswordRequest request)
         {

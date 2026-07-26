@@ -4,6 +4,7 @@ using AiRecruitmentPlatform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260726094452_AddRecruiterNotificationPreferenceEntity")]
+    partial class AddRecruiterNotificationPreferenceEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -415,94 +418,6 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("candidate_social_links", (string)null);
                 });
 
-            modelBuilder.Entity("AiRecruitmentPlatform.Domain.Entities.CompanyProfile", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("CompanyLogoUrl")
-                        .HasColumnType("longtext")
-                        .HasColumnName("company_logo_url");
-
-                    b.Property<string>("CompanyName")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("company_name");
-
-                    b.Property<string>("CompanySize")
-                        .HasColumnType("longtext")
-                        .HasColumnName("company_size");
-
-                    b.Property<string>("ContactEmail")
-                        .HasColumnType("longtext")
-                        .HasColumnName("contact_email");
-
-                    b.Property<string>("ContactPhone")
-                        .HasColumnType("longtext")
-                        .HasColumnName("contact_phone");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_on");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext")
-                        .HasColumnName("description");
-
-                    b.Property<int?>("EstablishedYear")
-                        .HasColumnType("int")
-                        .HasColumnName("established_year");
-
-                    b.Property<string>("Industry")
-                        .HasColumnType("longtext")
-                        .HasColumnName("industry");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("is_active");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("longtext")
-                        .HasColumnName("location");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("modified_by");
-
-                    b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("modified_on");
-
-                    b.Property<string>("RegistrationNumber")
-                        .HasColumnType("longtext")
-                        .HasColumnName("registration_number");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("Website")
-                        .HasColumnType("longtext")
-                        .HasColumnName("website");
-
-                    b.HasKey("Id")
-                        .HasName("pk_company_profiles");
-
-                    b.ToTable("company_profiles", (string)null);
-                });
-
             modelBuilder.Entity("AiRecruitmentPlatform.Domain.Entities.RecruiterNotificationPreference", b =>
                 {
                     b.Property<long>("Id")
@@ -681,7 +596,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                         {
                             Id = 1L,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "045df1c6-b971-4ead-9761-d413235d05a6",
+                            ConcurrencyStamp = "b7e3942f-77ce-4acc-ab52-fa9d9478f84c",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@airecruitmentplatform.com",
                             EmailConfirmed = true,
@@ -690,7 +605,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@AIRECRUITMENTPLATFORM.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOD0nbHx0+P7kEO56nP+SbpMwqHZTbZS5p2v9lNzLIFtGT68W0g2AvGQXkPcGhoEBg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJMqtuMV5qjZTIiof+3XhNTUCbqpbXx7MgrlwKeeUTCcPh7gWESXCbU0vHLbND6Vcw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "F3A1877B-B990-4F13-8E87-C90DF070B2C9",
                             TwoFactorEnabled = false,

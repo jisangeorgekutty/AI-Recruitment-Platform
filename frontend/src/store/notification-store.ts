@@ -1,10 +1,20 @@
 import { create } from 'zustand'
 import type { Notification } from '@/types'
 
+export interface RecruiterNotificationPreferenceState {
+  emailAlerts: boolean
+  jobApplications: boolean
+  candidateMessages: boolean
+  weeklyReports: boolean
+  marketingEmails: boolean
+  securityAlerts: boolean
+}
+
 interface NotificationState {
   notifications: Notification[]
   unreadCount: number
   isLoading: boolean
+  preferences: RecruiterNotificationPreferenceState | null
   setNotifications: (notifications: Notification[]) => void
   addNotification: (notification: Notification) => void
   markAsRead: (id: string) => void
@@ -12,12 +22,15 @@ interface NotificationState {
   removeNotification: (id: string) => void
   setUnreadCount: (count: number) => void
   setLoading: (isLoading: boolean) => void
+  setPreferences: (preferences: RecruiterNotificationPreferenceState | null) => void
+  updatePreferences: (data: Partial<RecruiterNotificationPreferenceState>) => void
 }
 
 export const useNotificationStore = create<NotificationState>()((set) => ({
   notifications: [],
   unreadCount: 0,
   isLoading: false,
+  preferences: null,
 
   setNotifications: (notifications) => set({ notifications }),
 
@@ -52,4 +65,12 @@ export const useNotificationStore = create<NotificationState>()((set) => ({
   setUnreadCount: (count) => set({ unreadCount: count }),
 
   setLoading: (isLoading) => set({ isLoading }),
+
+  setPreferences: (preferences) => set({ preferences }),
+
+  updatePreferences: (data) =>
+    set((state) => ({
+      preferences: state.preferences ? { ...state.preferences, ...data } : (data as RecruiterNotificationPreferenceState),
+    })),
 }))
+
