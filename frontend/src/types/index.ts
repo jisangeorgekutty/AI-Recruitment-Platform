@@ -31,26 +31,55 @@ export interface Company {
   updatedAt?: string
 }
 
+export interface JobSkill {
+  id?: number | string
+  jobPostingId?: number | string
+  skillName: string
+  isMandatory: boolean
+  minimumYearsExperience: number
+  displayOrder?: number
+}
+
+export interface JobScreeningQuestion {
+  id?: number | string
+  jobPostingId?: number | string
+  questionText: string
+  questionType: 'YesNo' | 'MultipleChoice' | 'Text'
+  optionsJson?: string
+  idealAnswer?: string
+  isKnockout: boolean
+  displayOrder?: number
+}
+
 export interface Job {
-  id: string
+  id: number | string
+  companyProfileId?: number
+  companyName?: string
+  companyLogoUrl?: string
   title: string
   department: string
   location: string
-  type: 'full-time' | 'part-time' | 'contract' | 'internship' | 'remote'
-  status: 'draft' | 'published' | 'closed' | 'archived'
-  experienceLevel: 'entry' | 'mid' | 'senior' | 'lead' | 'executive'
+  remoteType?: 'OnSite' | 'Remote' | 'Hybrid' | string
+  employmentType?: 'FullTime' | 'PartTime' | 'Contract' | 'Internship' | string
+  type?: string
+  status: 'Draft' | 'Active' | 'Paused' | 'Closed' | 'Archived' | 'draft' | 'published' | 'closed' | 'archived' | string
+  experienceLevel: 'Entry' | 'Mid' | 'Senior' | 'Lead' | 'Executive' | string
   description: string
-  requirements: string[]
-  responsibilities: string[]
+  requirements?: string
+  responsibilities?: string
   salaryMin?: number
   salaryMax?: number
   currency: string
+  showSalary?: boolean
   applicationsCount: number
   viewsCount: number
-  createdAt: string
-  updatedAt: string
-  createdBy: string
+  createdOn?: string
+  createdAt?: string
+  updatedAt?: string
+  createdBy?: string
   hiringManager?: string
+  skills?: JobSkill[]
+  screeningQuestions?: JobScreeningQuestion[]
 }
 
 export interface Candidate {

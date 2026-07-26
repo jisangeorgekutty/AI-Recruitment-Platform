@@ -29,7 +29,7 @@ AI Recruitment Platform
 ```
 
 ### **Technologies Used**
-* **Backend**: .NET 8, ASP.NET Core Web API, Entity Framework Core, ASP.NET Core Identity (JWT & Google OAuth2).
+* **Backend**: .NET 9, ASP.NET Core Web API, Entity Framework Core, ASP.NET Core Identity (JWT & Google OAuth2).
 * **Frontend**: React, TypeScript, Tailwind CSS / Modern CSS, Zustand, Axios / React Query.
 * **AI Engine**: LLM (OpenAI / Gemini API), Resume Text Parsing, Vector Matching, Automated Q&A Evaluation.
 
@@ -56,7 +56,7 @@ flowchart TD
 
 --- 
 
-### 🎯 Phase 1: User Profiles & Onboarding *(Current Focus)*
+### 🎯 Phase 1: User Profiles & Onboarding *(Completed)*
 - [ ] **Candidate Profile System**:
   - Personal details, bio, experience level, expected salary, target roles.
   - Skills tagger, work history, education history, portfolio links.
@@ -64,10 +64,10 @@ flowchart TD
   - Company details (Name, Logo, Industry, Size, Website, Culture).
   - Recruiter team member management.
 - [ ] **Onboarding Redirect Guard**:
-  - Auto-routing new users to role-specific onboarding wizards upon first sign-in.
+  - Auto-routing new users to role-specific onboarding wizards upon first sign-in. 
 ---
 
-### 📌 Phase 2: Job Management & Employer Portal
+### 📌 Phase 2: Job Management & Employer Portal *(Current Focus)*
 - [ ] Job Post Creation Wizard (Role Title, Skills, Experience Level, Salary Range, Location, Remote Type).
 - [ ] Customizable Screening Criteria (Mandatory skills, knock-out questions).
 - [ ] Job Listing Lifecycle Management (Draft, Active, Paused, Closed).

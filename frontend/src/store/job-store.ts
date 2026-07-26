@@ -1,5 +1,43 @@
 import { create } from 'zustand'
-import type { Job, TableFilters } from '@/types'
+import type { Job, JobSkill, JobScreeningQuestion, TableFilters } from '@/types'
+
+export interface JobWizardData {
+  title: string
+  department: string
+  location: string
+  remoteType: 'OnSite' | 'Remote' | 'Hybrid'
+  employmentType: 'FullTime' | 'PartTime' | 'Contract' | 'Internship'
+  experienceLevel: 'Entry' | 'Mid' | 'Senior' | 'Lead' | 'Executive'
+  description: string
+  requirements: string
+  responsibilities: string
+  salaryMin?: number
+  salaryMax?: number
+  currency: string
+  showSalary: boolean
+  hiringManager?: string
+  skills: JobSkill[]
+  screeningQuestions: JobScreeningQuestion[]
+}
+
+const defaultWizardData: JobWizardData = {
+  title: '',
+  department: '',
+  location: '',
+  remoteType: 'OnSite',
+  employmentType: 'FullTime',
+  experienceLevel: 'Mid',
+  description: '',
+  requirements: '',
+  responsibilities: '',
+  salaryMin: 50000,
+  salaryMax: 120000,
+  currency: 'USD',
+  showSalary: true,
+  hiringManager: '',
+  skills: [],
+  screeningQuestions: [],
+}
 
 interface JobState {
   jobs: Job[]
@@ -7,8 +45,12 @@ interface JobState {
   currentPage: number
   pageSize: number
   filters: TableFilters
-  selectedJobs: string[]
+  selectedJobs: (string | number)[]
   isLoading: boolean
+  
+  // Wizard State
+  activeWizardStep: number
+  wizardDraft: JobWizardData
 
   setJobs: (jobs: Job[]) => void
   setTotal: (total: number) => void
@@ -16,20 +58,25 @@ interface JobState {
   setPageSize: (size: number) => void
   setFilters: (filters: Partial<TableFilters>) => void
   resetFilters: () => void
-  setSelectedJobs: (ids: string[]) => void
-  toggleJobSelection: (id: string) => void
+  setSelectedJobs: (ids: (string | number)[]) => void
+  toggleJobSelection: (id: string | number) => void
   selectAll: () => void
   clearSelection: () => void
   setLoading: (isLoading: boolean) => void
   addJob: (job: Job) => void
-  updateJob: (id: string, data: Partial<Job>) => void
-  removeJob: (id: string) => void
+  updateJob: (id: string | number, data: Partial<Job>) => void
+  removeJob: (id: string | number) => void
+
+  // Wizard actions
+  setActiveWizardStep: (step: number) => void
+  setWizardDraft: (data: Partial<JobWizardData>) => void
+  resetWizardDraft: () => void
 }
 
 const defaultFilters: TableFilters = {
   search: '',
   status: '',
-  sortBy: 'createdAt',
+  sortBy: 'createdOn',
   sortOrder: 'desc',
 }
 
@@ -41,6 +88,9 @@ export const useJobStore = create<JobState>()((set) => ({
   filters: defaultFilters,
   selectedJobs: [],
   isLoading: false,
+
+  activeWizardStep: 1,
+  wizardDraft: defaultWizardData,
 
   setJobs: (jobs) => set({ jobs }),
   setTotal: (total) => set({ total }),
@@ -80,13 +130,26 @@ export const useJobStore = create<JobState>()((set) => ({
 
   updateJob: (id, data) =>
     set((state) => ({
-      jobs: state.jobs.map((j) => (j.id === id ? { ...j, ...data } : j)),
+      jobs: state.jobs.map((j) => (String(j.id) === String(id) ? { ...j, ...data } : j)),
     })),
 
   removeJob: (id) =>
     set((state) => ({
-      jobs: state.jobs.filter((j) => j.id !== id),
+      jobs: state.jobs.filter((j) => String(j.id) !== String(id)),
       total: state.total - 1,
-      selectedJobs: state.selectedJobs.filter((jId) => jId !== id),
+      selectedJobs: state.selectedJobs.filter((jId) => String(jId) !== String(id)),
     })),
+
+  setActiveWizardStep: (step) => set({ activeWizardStep: step }),
+
+  setWizardDraft: (data) =>
+    set((state) => ({
+      wizardDraft: { ...state.wizardDraft, ...data },
+    })),
+
+  resetWizardDraft: () =>
+    set({
+      activeWizardStep: 1,
+      wizardDraft: defaultWizardData,
+    }),
 }))

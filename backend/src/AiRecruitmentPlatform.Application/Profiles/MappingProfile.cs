@@ -49,6 +49,15 @@ namespace AiRecruitmentPlatform.Application.Profiles
             // Company Profile Mappings
             CreateMap<CompanyProfile, DTOs.Company.CompanyProfileDto>().ReverseMap();
             CreateMap<DTOs.Company.UpdateCompanyProfileRequest, CompanyProfile>();
+
+            // Job Posting Mappings
+            CreateMap<JobPosting, DTOs.Job.JobPostingDto>()
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.CompanyName : string.Empty))
+                .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.CompanyProfile != null ? src.CompanyProfile.CompanyLogoUrl : null));
+            CreateMap<DTOs.Job.CreateJobPostingDto, JobPosting>();
+            CreateMap<DTOs.Job.UpdateJobPostingDto, JobPosting>();
+            CreateMap<JobSkill, DTOs.Job.JobSkillDto>().ReverseMap();
+            CreateMap<JobScreeningQuestion, DTOs.Job.JobScreeningQuestionDto>().ReverseMap();
         }
     }
 }

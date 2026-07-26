@@ -85,6 +85,8 @@ namespace AiRecruitmentPlatform.Infrastructure
             services.AddScoped<IRecruiterNotificationPreferenceService, RecruiterNotificationPreferenceService>();
             services.AddScoped<ICompanyProfileRepository, CompanyProfileRepository>();
             services.AddScoped<ICompanyProfileService, CompanyProfileService>();
+            services.AddScoped<IJobPostingRepository, JobPostingRepository>();
+            services.AddScoped<IJobPostingService, JobPostingService>();
 
             return services;
         }
