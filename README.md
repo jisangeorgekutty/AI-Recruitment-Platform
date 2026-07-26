@@ -54,7 +54,7 @@ flowchart TD
 - [x] Role-Based Access Control (`Candidate`, `Recruiter`, `Admin`).
 - [x] Refresh Token mechanism and secure auth state persistence in frontend.
 
----
+--- 
 
 ### 🎯 Phase 1: User Profiles & Onboarding *(Current Focus)*
 - [ ] **Candidate Profile System**:
@@ -65,7 +65,6 @@ flowchart TD
   - Recruiter team member management.
 - [ ] **Onboarding Redirect Guard**:
   - Auto-routing new users to role-specific onboarding wizards upon first sign-in.
-
 ---
 
 ### 📌 Phase 2: Job Management & Employer Portal

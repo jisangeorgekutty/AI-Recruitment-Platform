@@ -78,4 +78,9 @@ export const authService = {
     const response = await api.post<ApiResponse<{ accessToken: string; refreshToken: string }>>('/auth/refresh', { refreshToken })
     return response.data.data
   },
+
+  async completeOnboarding() {
+    const response = await api.post<ApiResponse<User>>('/auth/complete-onboarding')
+    return response.data.data
+  },
 }

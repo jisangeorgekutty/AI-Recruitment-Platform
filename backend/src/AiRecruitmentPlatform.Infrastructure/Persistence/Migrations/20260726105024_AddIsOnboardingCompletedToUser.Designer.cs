@@ -4,6 +4,7 @@ using AiRecruitmentPlatform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260726105024_AddIsOnboardingCompletedToUser")]
+    partial class AddIsOnboardingCompletedToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -255,18 +258,6 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("current_title");
 
-                    b.Property<decimal?>("ExpectedSalaryMax")
-                        .HasColumnType("decimal(65,30)")
-                        .HasColumnName("expected_salary_max");
-
-                    b.Property<decimal?>("ExpectedSalaryMin")
-                        .HasColumnType("decimal(65,30)")
-                        .HasColumnName("expected_salary_min");
-
-                    b.Property<string>("ExperienceLevel")
-                        .HasColumnType("longtext")
-                        .HasColumnName("experience_level");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_active");
@@ -294,10 +285,6 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                     b.Property<string>("Summary")
                         .HasColumnType("longtext")
                         .HasColumnName("summary");
-
-                    b.Property<string>("TargetRole")
-                        .HasColumnType("longtext")
-                        .HasColumnName("target_role");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint")
@@ -701,7 +688,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                         {
                             Id = 1L,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1ccd74a9-e8b6-4d25-aebe-942d19e5f7a8",
+                            ConcurrencyStamp = "05155fd9-8b0a-4593-8f59-546fe68342fa",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@airecruitmentplatform.com",
                             EmailConfirmed = true,
@@ -711,7 +698,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@AIRECRUITMENTPLATFORM.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEK6MwphwCo2eoggeigkpkGDRmo88ng121GMmK8TnboMgpZZcYDMdewu5kQadKSZXOQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFV/9hwisXYWGUi1mTpMoMkyMuX7W2PR51vBM6MnGfIaypKt5jfWUJxormxDWlIcXw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "F3A1877B-B990-4F13-8E87-C90DF070B2C9",
                             TwoFactorEnabled = false,

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabPanel } from '@/components/ui/tabs'
@@ -25,6 +26,10 @@ export default function CandidateProfilePage() {
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
   const [currentTitle, setCurrentTitle] = useState('')
+  const [targetRole, setTargetRole] = useState('')
+  const [experienceLevel, setExperienceLevel] = useState('')
+  const [expectedSalaryMin, setExpectedSalaryMin] = useState<string>('')
+  const [expectedSalaryMax, setExpectedSalaryMax] = useState<string>('')
   const [location, setLocation] = useState('')
   const [summary, setSummary] = useState('')
   const [yearsOfExperience, setYearsOfExperience] = useState(0)
@@ -71,6 +76,10 @@ export default function CandidateProfilePage() {
       setLastName(profile.lastName || '')
       setPhone(profile.phone || '')
       setCurrentTitle(profile.currentTitle || '')
+      setTargetRole(profile.targetRole || '')
+      setExperienceLevel(profile.experienceLevel || '')
+      setExpectedSalaryMin(profile.expectedSalaryMin ? profile.expectedSalaryMin.toString() : '')
+      setExpectedSalaryMax(profile.expectedSalaryMax ? profile.expectedSalaryMax.toString() : '')
       setLocation(profile.location || '')
       setSummary(profile.summary || '')
       setYearsOfExperience(profile.yearsOfExperience || 0)
@@ -286,8 +295,25 @@ export default function CandidateProfilePage() {
               <Input id="email" label="Email" value={profile.email} disabled />
               <Input id="phone" label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 (555) 000-0000" />
               <Input id="title" label="Current Title" value={currentTitle} onChange={(e) => setCurrentTitle(e.target.value)} placeholder="e.g. Senior Software Engineer" />
-              <Input id="location" label="Location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. New York, NY" />
+              <Input id="targetRole" label="Target Role / Job Title" value={targetRole} onChange={(e) => setTargetRole(e.target.value)} placeholder="e.g. Full Stack Engineer" />
+              
+              <Select
+                id="experienceLevel"
+                label="Experience Level"
+                value={experienceLevel}
+                onChange={(e) => setExperienceLevel(e.target.value)}
+                options={[
+                  { value: '', label: 'Select Experience Level' },
+                  { value: 'entry', label: 'Entry Level (0-2 yrs)' },
+                  { value: 'mid', label: 'Mid Level (3-5 yrs)' },
+                  { value: 'senior', label: 'Senior Level (6-9 yrs)' },
+                  { value: 'lead', label: 'Lead / Principal / Executive (10+ yrs)' },
+                ]}
+              />
               <Input id="yearsOfExperience" label="Years of Experience" type="number" value={yearsOfExperience} onChange={(e) => setYearsOfExperience(Number(e.target.value))} />
+              <Input id="expectedSalaryMin" label="Minimum Expected Salary ($/yr)" type="number" value={expectedSalaryMin} onChange={(e) => setExpectedSalaryMin(e.target.value)} placeholder="e.g. 80000" />
+              <Input id="expectedSalaryMax" label="Maximum Target Salary ($/yr)" type="number" value={expectedSalaryMax} onChange={(e) => setExpectedSalaryMax(e.target.value)} placeholder="e.g. 130000" />
+              <Input id="location" label="Location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. New York, NY" />
             </div>
 
             <Textarea
@@ -333,6 +359,10 @@ export default function CandidateProfilePage() {
                     lastName,
                     phone,
                     currentTitle,
+                    targetRole: targetRole || undefined,
+                    experienceLevel: experienceLevel || undefined,
+                    expectedSalaryMin: expectedSalaryMin ? parseFloat(expectedSalaryMin) : undefined,
+                    expectedSalaryMax: expectedSalaryMax ? parseFloat(expectedSalaryMax) : undefined,
                     location,
                     summary,
                     yearsOfExperience,

@@ -16,5 +16,6 @@ namespace AiRecruitmentPlatform.Application.Interfaces.Services
         Task ChangePasswordAsync(long userId, ChangePasswordRequest request);
         Task ForgotPasswordAsync(ForgotPasswordRequest request);
         Task ResetPasswordAsync(ResetPasswordRequest request);
+        Task<UserProfileResponse> CompleteOnboardingAsync(long userId);
     }
 }

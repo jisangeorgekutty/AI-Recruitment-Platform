@@ -148,6 +148,22 @@ namespace AiRecruitmentPlatform.Api.Controllers
             }
         }
 
+        [HttpPost("complete-onboarding")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<UserProfileResponse>>> CompleteOnboarding()
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                var response = await _authService.CompleteOnboardingAsync(userId);
+                return Ok(ApiResponse<UserProfileResponse>.SuccessResult(response, "Onboarding completed successfully"));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<UserProfileResponse>.FailureResult(ex.Message));
+            }
+        }
+
         [HttpPut("change-password")]
         [Authorize]
         public async Task<ActionResult<ApiResponse<string>>> ChangePassword([FromBody] ChangePasswordRequest request)

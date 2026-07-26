@@ -437,9 +437,25 @@ namespace AiRecruitmentPlatform.Infrastructure.Identity
                 Avatar = user.AvatarUrl,
                 Role = MapRoleToFrontend(primaryRole),
                 CompanyId = user.CompanyId,
+                IsOnboardingCompleted = user.IsOnboardingCompleted,
                 CreatedAt = user.CreatedAt,
                 UpdatedAt = user.UpdatedAt
             };
+        }
+
+        public async Task<UserProfileResponse> CompleteOnboardingAsync(long userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                throw new InvalidOperationException("User not found.");
+            }
+
+            user.IsOnboardingCompleted = true;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+
+            return await BuildUserProfileResponseAsync(user);
         }
 
         private async Task<List<string>> GetPermissionsForUserAsync(IList<string> roles)

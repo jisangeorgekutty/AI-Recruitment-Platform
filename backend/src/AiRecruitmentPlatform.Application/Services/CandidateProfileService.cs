@@ -101,14 +101,22 @@ namespace AiRecruitmentPlatform.Application.Services
             var profile = await _profileRepo.GetFullProfileByUserIdAsync(userId);
             if (profile == null)
             {
-                profile = new CandidateProfileInformation { UserId = userId, CreatedOn = DateTime.UtcNow, ModifiedOn = DateTime.UtcNow };
+                profile = new CandidateProfileInformation
+                {
+                    UserId = userId,
+                    CreatedOn = DateTime.UtcNow,
+                    ModifiedOn = DateTime.UtcNow
+                };
+                _mapper.Map(request, profile);
                 await _profileRepo.Add(profile);
             }
+            else
+            {
+                _mapper.Map(request, profile);
+                profile.ModifiedOn = DateTime.UtcNow;
+                await _profileRepo.Update(profile);
+            }
 
-            _mapper.Map(request, profile);
-            profile.ModifiedOn = DateTime.UtcNow;
-
-            await _profileRepo.Update(profile);
             await _profileRepo.SaveChanges();
 
             return await GetProfileByUserIdAsync(userId);

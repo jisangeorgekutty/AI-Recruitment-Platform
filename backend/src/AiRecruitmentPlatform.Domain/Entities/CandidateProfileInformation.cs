@@ -8,6 +8,10 @@ namespace AiRecruitmentPlatform.Domain.Entities
     {
         public long UserId { get; set; }
         public string? CurrentTitle { get; set; }
+        public string? TargetRole { get; set; }
+        public string? ExperienceLevel { get; set; }
+        public decimal? ExpectedSalaryMin { get; set; }
+        public decimal? ExpectedSalaryMax { get; set; }
         public string? Summary { get; set; }
         public string? Location { get; set; }
         public int YearsOfExperience { get; set; }

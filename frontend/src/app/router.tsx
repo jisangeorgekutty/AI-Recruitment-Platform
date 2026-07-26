@@ -6,12 +6,17 @@ import { CandidateLayout } from '@/features/candidate/layouts/candidate-layout'
 import { AdminLayout } from '@/features/admin/layouts/admin-layout'
 import { LoadingSkeleton } from '@/components/loading-skeleton'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { OnboardingGuard } from '@/components/onboarding-guard'
 
 const LandingPage = lazy(() => import('@/features/landing/pages/landing-page'))
 const LoginPage = lazy(() => import('@/features/auth/pages/login-page'))
 const RegisterPage = lazy(() => import('@/features/auth/pages/register-page'))
 const ForgotPasswordPage = lazy(() => import('@/features/auth/pages/forgot-password-page'))
 const ResetPasswordPage = lazy(() => import('@/features/auth/pages/reset-password-page'))
+
+// Onboarding Pages
+const CandidateOnboardingPage = lazy(() => import('@/features/onboarding/pages/candidate-onboarding-page'))
+const RecruiterOnboardingPage = lazy(() => import('@/features/onboarding/pages/recruiter-onboarding-page'))
 
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/dashboard-page'))
 const JobsListPage = lazy(() => import('@/features/jobs/pages/jobs-list-page'))
@@ -77,7 +82,7 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
       return <Navigate to={getDefaultDashboard(role)} replace />
     }
   } catch { }
-  return <>{children}</>
+  return <OnboardingGuard>{children}</OnboardingGuard>
 }
 
 const routes: RouteObject[] = [
@@ -93,6 +98,22 @@ const routes: RouteObject[] = [
       { path: '/forgot-password', element: <SuspenseWrapper><ForgotPasswordPage /></SuspenseWrapper> },
       { path: '/reset-password', element: <SuspenseWrapper><ResetPasswordPage /></SuspenseWrapper> },
     ],
+  },
+  {
+    path: '/candidate/onboarding',
+    element: (
+      <ProtectedRoute allowedRoles={['candidate']}>
+        <SuspenseWrapper><CandidateOnboardingPage /></SuspenseWrapper>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/recruiter/onboarding',
+    element: (
+      <ProtectedRoute allowedRoles={['admin', 'recruiter']}>
+        <SuspenseWrapper><RecruiterOnboardingPage /></SuspenseWrapper>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/recruiter',

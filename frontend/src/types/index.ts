@@ -5,6 +5,7 @@ export interface User {
   avatar?: string
   role: 'admin' | 'recruiter' | 'candidate'
   companyId?: string
+  isOnboardingCompleted?: boolean
   createdAt: string
   updatedAt: string
 }

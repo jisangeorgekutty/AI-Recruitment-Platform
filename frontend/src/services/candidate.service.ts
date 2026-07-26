@@ -53,6 +53,10 @@ export interface CandidateProfile {
   phone?: string
   avatarUrl?: string
   currentTitle?: string
+  targetRole?: string
+  experienceLevel?: string
+  expectedSalaryMin?: number
+  expectedSalaryMax?: number
   summary?: string
   location?: string
   yearsOfExperience: number
@@ -69,6 +73,10 @@ export interface UpdatePersonalInfoPayload {
   lastName?: string
   phone?: string
   currentTitle?: string
+  targetRole?: string
+  experienceLevel?: string
+  expectedSalaryMin?: number
+  expectedSalaryMax?: number
   location?: string
   summary?: string
   yearsOfExperience?: number
