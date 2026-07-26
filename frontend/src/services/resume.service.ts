@@ -1,34 +1,48 @@
 import api from './api'
-import type { ApiResponse, Resume, ParsedResume, ResumeScore } from '@/types'
+import type { ApiResponse, ResumeAtsAnalysis } from '@/types'
+
+export interface CandidateResumeResponse {
+  id: number
+  candidateProfileId: number
+  fileName: string
+  fileUrl: string
+  fileType: string
+  fileSize: number
+  isPrimary: boolean
+  createdOn: string
+}
 
 export const resumeService = {
-  async upload(candidateId: string, file: File) {
+  async uploadResume(file: File) {
     const formData = new FormData()
     formData.append('file', file)
-    formData.append('candidateId', candidateId)
-    const response = await api.post<ApiResponse<Resume>>('/resume/upload', formData, {
+    formData.append('title', file.name)
+    formData.append('isPrimary', 'true')
+    const response = await api.post<ApiResponse<CandidateResumeResponse>>('/candidate-resumes', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return response.data.data
   },
 
-  async parse(resumeId: string) {
-    const response = await api.post<ApiResponse<ParsedResume>>(`/resume/${resumeId}/parse`)
+  async analyzeAts(resumeId: number | string) {
+    const response = await api.post<ApiResponse<ResumeAtsAnalysis>>(`/candidate-resumes/${resumeId}/analyze-ats`)
     return response.data.data
   },
 
-  async analyze(resumeId: string, jobId: string) {
-    const response = await api.post<ApiResponse<ResumeScore>>(`/resume/${resumeId}/analyze`, { jobId })
+  async getAtsAnalysis(resumeId: number | string) {
+    const response = await api.get<ApiResponse<ResumeAtsAnalysis>>(`/candidate-resumes/${resumeId}/ats-analysis`)
     return response.data.data
   },
 
-  async getByCandidate(candidateId: string) {
-    const response = await api.get<ApiResponse<Resume[]>>(`/resume/candidate/${candidateId}`)
+  async getMyResumes() {
+    const response = await api.get<ApiResponse<CandidateResumeResponse[]>>('/candidate-resumes')
     return response.data.data
   },
 
-  async delete(resumeId: string) {
-    const response = await api.delete<ApiResponse<{ message: string }>>(`/resume/${resumeId}`)
+  async delete(resumeId: number | string) {
+    const response = await api.delete<ApiResponse<boolean>>(`/candidate-resumes/${resumeId}`)
     return response.data.data
   },
 }
+
+

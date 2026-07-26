@@ -37,7 +37,7 @@ export default function CandidateProfilePage() {
       <PageHeader
         title=""
         actions={
-          <Button variant="outline" onClick={() => navigate('/candidates')}>
+          <Button variant="outline" onClick={() => navigate('/recruiter/candidates')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
@@ -73,7 +73,7 @@ export default function CandidateProfilePage() {
             </Badge>
           </div>
           <div className="flex flex-wrap gap-1.5 mt-4 justify-center sm:justify-start">
-            {candidate.skills.map((skill) => (
+            {(candidate.skills ?? []).map((skill) => (
               <Badge key={skill} variant="secondary">{skill}</Badge>
             ))}
           </div>
@@ -97,37 +97,45 @@ export default function CandidateProfilePage() {
           <Card>
             <CardHeader><CardTitle>Experience</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              {candidate.experience.map((exp) => (
-                <div key={exp.id}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-medium">{exp.title}</p>
-                      <p className="text-sm text-muted-foreground">{exp.company}</p>
+              {(candidate.experience ?? []).length > 0 ? (
+                (candidate.experience ?? []).map((exp: any) => (
+                  <div key={exp.id}>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium">{exp.title}</p>
+                        <p className="text-sm text-muted-foreground">{exp.company}</p>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(exp.startDate, 'short')} - {exp.isCurrent || exp.current ? 'Present' : exp.endDate ? formatDate(exp.endDate, 'short') : ''}
+                      </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDate(exp.startDate, 'short')} - {exp.current ? 'Present' : exp.endDate ? formatDate(exp.endDate, 'short') : ''}
-                    </span>
+                    {exp.description && <p className="mt-1 text-sm text-muted-foreground">{exp.description}</p>}
+                    <Separator className="mt-3" />
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">{exp.description}</p>
-                  <Separator className="mt-3" />
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-xs text-muted-foreground italic py-4">No work experience listed.</p>
+              )}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader><CardTitle>Education</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              {candidate.education.map((edu) => (
-                <div key={edu.id}>
-                  <p className="font-medium">{edu.degree} in {edu.field}</p>
-                  <p className="text-sm text-muted-foreground">{edu.institution}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(edu.startDate, 'short')} - {edu.endDate ? formatDate(edu.endDate, 'short') : 'Present'}
-                  </p>
-                  <Separator className="mt-3" />
-                </div>
-              ))}
+              {(candidate.education ?? []).length > 0 ? (
+                (candidate.education ?? []).map((edu: any) => (
+                  <div key={edu.id}>
+                    <p className="font-medium">{edu.degree} {edu.fieldOfStudy || edu.field ? `in ${edu.fieldOfStudy || edu.field}` : ''}</p>
+                    <p className="text-sm text-muted-foreground">{edu.institution}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(edu.startDate, 'short')} - {edu.endDate ? formatDate(edu.endDate, 'short') : 'Present'}
+                    </p>
+                    <Separator className="mt-3" />
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-muted-foreground italic py-4">No education listed.</p>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -136,20 +144,24 @@ export default function CandidateProfilePage() {
       <TabPanel value="experience" activeTab={activeTab}>
         <Card>
           <CardContent className="p-6 space-y-6">
-            {candidate.experience.map((exp) => (
-              <div key={exp.id}>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold">{exp.title}</h3>
-                    <p className="text-sm text-muted-foreground">{exp.company}</p>
+            {(candidate.experience ?? []).length > 0 ? (
+              (candidate.experience ?? []).map((exp: any) => (
+                <div key={exp.id}>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold">{exp.title}</h3>
+                      <p className="text-sm text-muted-foreground">{exp.company}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(exp.startDate, 'short')} - {exp.isCurrent || exp.current ? 'Present' : exp.endDate ? formatDate(exp.endDate, 'short') : ''}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDate(exp.startDate, 'short')} - {exp.current ? 'Present' : exp.endDate ? formatDate(exp.endDate, 'short') : ''}
-                  </span>
+                  {exp.description && <p className="mt-2 text-sm text-muted-foreground">{exp.description}</p>}
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">{exp.description}</p>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-xs text-muted-foreground italic">No work experience listed.</p>
+            )}
           </CardContent>
         </Card>
       </TabPanel>
@@ -157,16 +169,20 @@ export default function CandidateProfilePage() {
       <TabPanel value="education" activeTab={activeTab}>
         <Card>
           <CardContent className="p-6 space-y-6">
-            {candidate.education.map((edu) => (
-              <div key={edu.id}>
-                <h3 className="font-semibold">{edu.degree} in {edu.field}</h3>
-                <p className="text-sm text-muted-foreground">{edu.institution}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatDate(edu.startDate, 'short')} - {edu.endDate ? formatDate(edu.endDate, 'short') : 'Present'}
-                </p>
-                {edu.gpa && <p className="text-sm mt-1">GPA: {edu.gpa}</p>}
-              </div>
-            ))}
+            {(candidate.education ?? []).length > 0 ? (
+              (candidate.education ?? []).map((edu: any) => (
+                <div key={edu.id}>
+                  <h3 className="font-semibold">{edu.degree} {edu.fieldOfStudy || edu.field ? `in ${edu.fieldOfStudy || edu.field}` : ''}</h3>
+                  <p className="text-sm text-muted-foreground">{edu.institution}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDate(edu.startDate, 'short')} - {edu.endDate ? formatDate(edu.endDate, 'short') : 'Present'}
+                  </p>
+                  {(edu.grade || edu.gpa) && <p className="text-sm mt-1">Grade: {edu.grade || edu.gpa}</p>}
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-muted-foreground italic">No education listed.</p>
+            )}
           </CardContent>
         </Card>
       </TabPanel>

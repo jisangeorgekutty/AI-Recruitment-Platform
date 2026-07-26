@@ -62,7 +62,7 @@ export default function CandidateResumePage() {
     try {
       const result = await candidateResumeService.analyzeAts(resumeId)
       setAtsAnalysis(result)
-      toast.success('Gemini AI ATS Analysis complete!')
+      toast.success('AI ATS Analysis complete!')
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'AI Analysis failed.')
     } finally {
@@ -99,7 +99,7 @@ export default function CandidateResumePage() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <PageHeader title="Resume Management" description="Upload, analyze with Gemini AI, and optimize your resumes" />
+      <PageHeader title="Resume Management" description="Upload, analyze with AI, and optimize your resumes" />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column (2 Cols wide): Upload, Resumes List, ATS Compatibility Check */}

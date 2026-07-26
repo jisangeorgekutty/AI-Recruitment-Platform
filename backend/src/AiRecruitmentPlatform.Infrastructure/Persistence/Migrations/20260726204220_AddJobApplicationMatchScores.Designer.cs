@@ -4,6 +4,7 @@ using AiRecruitmentPlatform.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260726204220_AddJobApplicationMatchScores")]
+    partial class AddJobApplicationMatchScores
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1294,139 +1297,6 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("recruiter_notification_preferences", (string)null);
                 });
 
-            modelBuilder.Entity("AiRecruitmentPlatform.Domain.Entities.RecruiterParsedResume", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("AtsCompletenessScore")
-                        .HasColumnType("int")
-                        .HasColumnName("ats_completeness_score");
-
-                    b.Property<int>("AtsFormatScore")
-                        .HasColumnType("int")
-                        .HasColumnName("ats_format_score");
-
-                    b.Property<int>("AtsKeywordScore")
-                        .HasColumnType("int")
-                        .HasColumnName("ats_keyword_score");
-
-                    b.Property<int>("AtsOverallScore")
-                        .HasColumnType("int")
-                        .HasColumnName("ats_overall_score");
-
-                    b.Property<string>("AtsSuggestionsJson")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("ats_suggestions_json");
-
-                    b.Property<string>("CandidateEmail")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("candidate_email");
-
-                    b.Property<string>("CandidateName")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("candidate_name");
-
-                    b.Property<string>("CandidatePhone")
-                        .HasColumnType("longtext")
-                        .HasColumnName("candidate_phone");
-
-                    b.Property<long>("CompanyProfileId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("company_profile_id");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("created_on");
-
-                    b.Property<string>("CurrentTitle")
-                        .HasColumnType("longtext")
-                        .HasColumnName("current_title");
-
-                    b.Property<long>("DisplayOrder")
-                        .HasColumnType("bigint")
-                        .HasColumnName("display_order");
-
-                    b.Property<string>("DocumentUrl")
-                        .HasColumnType("longtext")
-                        .HasColumnName("document_url");
-
-                    b.Property<string>("EducationJson")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("education_json");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("is_active");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("longtext")
-                        .HasColumnName("location");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("modified_by");
-
-                    b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("modified_on");
-
-                    b.Property<string>("OriginalFileName")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("original_file_name");
-
-                    b.Property<DateTime>("ParsedAt")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("parsed_at");
-
-                    b.Property<long>("RecruiterUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("recruiter_user_id");
-
-                    b.Property<string>("SkillsJson")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("skills_json");
-
-                    b.Property<string>("Summary")
-                        .HasColumnType("longtext")
-                        .HasColumnName("summary");
-
-                    b.Property<string>("WorkHistoryJson")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("work_history_json");
-
-                    b.Property<int>("YearsOfExperience")
-                        .HasColumnType("int")
-                        .HasColumnName("years_of_experience");
-
-                    b.HasKey("Id")
-                        .HasName("pk_recruiter_parsed_resumes");
-
-                    b.HasIndex("CompanyProfileId")
-                        .HasDatabaseName("ix_recruiter_parsed_resumes_company_profile_id");
-
-                    b.ToTable("recruiter_parsed_resumes", (string)null);
-                });
-
             modelBuilder.Entity("AiRecruitmentPlatform.Infrastructure.Identity.Models.ApplicationUser", b =>
                 {
                     b.Property<long>("Id")
@@ -1550,7 +1420,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                         {
                             Id = 1L,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "77f6246f-7758-4e78-a42c-a476c3b7f912",
+                            ConcurrencyStamp = "d2450143-16ce-48f4-a12e-0424796a6a22",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@airecruitmentplatform.com",
                             EmailConfirmed = true,
@@ -1560,7 +1430,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@AIRECRUITMENTPLATFORM.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEFEujrKY7tuTvAN4/k7K1lLRAip1jwv0T/bKVDxhrmHH5iJBvfvgfHp61SygAM1gg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFYcmxfnt8mC6lEC/v/8ww+8mAmi+kNBpo2ArnPNqnbiJzMya5kNZ6zrZZRmbHd+HQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "F3A1877B-B990-4F13-8E87-C90DF070B2C9",
                             TwoFactorEnabled = false,
@@ -1969,18 +1839,6 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_job_skills_job_postings_job_posting_id");
 
                     b.Navigation("JobPosting");
-                });
-
-            modelBuilder.Entity("AiRecruitmentPlatform.Domain.Entities.RecruiterParsedResume", b =>
-                {
-                    b.HasOne("AiRecruitmentPlatform.Domain.Entities.CompanyProfile", "CompanyProfile")
-                        .WithMany()
-                        .HasForeignKey("CompanyProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_recruiter_parsed_resumes_company_profiles_company_profile_id");
-
-                    b.Navigation("CompanyProfile");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>

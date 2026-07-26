@@ -74,17 +74,17 @@ flowchart TD
 
 ---
 
-### 📌 Phase 3: Candidate Portal & Resume Processing *(In Progress)*
+### 📌 Phase 3: Candidate Portal & Resume Processing *(Completed)*
 - [ ] Job Search & Discovery feed with multi-filter search (Skills, Location, Salary).
 - [ ] Job Application Flow (One-Click Apply with profile vs Custom Upload).
 - [ ] Document Storage integration (Local / AWS S3 / Azure Blob Storage) for resumes.
 
----
+--- 
 
-### 📌 Phase 4: AI Resume Parsing & Match Scoring Engine
-- [ ] **AI Resume Parser**: Extract structured data (skills, experience years, education, certifications) from PDF/Word resumes.
-- [ ] **AI Match Engine**: Compute a **Match Percentage (%)** by evaluating Candidate Resumes against Job Requirements using LLM/Vector Embeddings.
-- [ ] Generate automated **Candidate Summary & Skill Gap Analysis**.
+### 📌 Phase 4: AI Resume Parsing & Match Scoring Engine *(Completed)*
+- [x] **AI Resume Parser**: Extract structured data (skills, experience years, education, certifications) from PDF/Word resumes.
+- [x] **AI Match Engine**: Compute a **Match Percentage (%)** by evaluating Candidate Resumes against Job Requirements using LLM/Vector Embeddings.
+- [x] Generate automated **Candidate Summary & Skill Gap Analysis**.
 
 ---
 

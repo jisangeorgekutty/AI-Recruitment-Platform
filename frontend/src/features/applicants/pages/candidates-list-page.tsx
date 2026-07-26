@@ -10,11 +10,15 @@ import { LoadingSkeleton } from '@/components/loading-skeleton'
 import { CandidateCard } from '@/features/applicants/components/candidate-card'
 import { CandidateFilters } from '@/features/applicants/components/candidate-filters'
 import { candidateService } from '@/services/candidate.service'
-import { Users, List, Columns } from 'lucide-react'
+import { Users, List, Columns, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+
+import { CandidateMatchModal } from '@/features/applicants/components/candidate-match-modal'
+import { useJobMatchStore } from '@/store/job-match-store'
 
 export default function CandidatesListPage() {
   const navigate = useNavigate()
+  const { sortByAiScore, toggleSortByAiScore } = useJobMatchStore()
   const [activeTab, setActiveTab] = useState('all')
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list')
   const [filters, setFilters] = useState({ search: '', stage: '', status: '' })
@@ -24,14 +28,19 @@ export default function CandidatesListPage() {
     queryFn: () => candidateService.list({ ...filters, pageSize: 50 }),
   })
 
-  const candidates = data?.data ?? []
+  const candidates = data?.items ?? data?.data ?? []
 
   const filteredCandidates = useMemo(() => {
-    if (activeTab === 'active') return candidates.filter((c) => c.status === 'active')
-    if (activeTab === 'hired') return candidates.filter((c) => c.stage === 'hired')
-    if (activeTab === 'rejected') return candidates.filter((c) => c.stage === 'rejected')
-    return candidates
-  }, [candidates, activeTab])
+    let result = candidates
+    if (activeTab === 'active') result = candidates.filter((c) => c.status === 'active')
+    else if (activeTab === 'hired') result = candidates.filter((c) => c.stage === 'hired')
+    else if (activeTab === 'rejected') result = candidates.filter((c) => c.stage === 'rejected')
+
+    if (sortByAiScore) {
+      return [...result].sort((a, b) => (b.resumeScore ?? 0) - (a.resumeScore ?? 0))
+    }
+    return result
+  }, [candidates, activeTab, sortByAiScore])
 
   const tabCounts = {
     all: candidates.length,
@@ -50,6 +59,19 @@ export default function CandidatesListPage() {
         actions={
           <div className="flex items-center gap-2">
             <Button
+              variant={sortByAiScore ? 'default' : 'outline'}
+              size="sm"
+              onClick={toggleSortByAiScore}
+              className={
+                sortByAiScore
+                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm gap-1.5'
+                  : 'text-indigo-600 border-indigo-500/30 dark:text-indigo-400 gap-1.5 hover:bg-indigo-500/10'
+              }
+            >
+              <Sparkles className="h-3.5 w-3.5 text-amber-300 fill-amber-300" />
+              {sortByAiScore ? 'Sorted by AI Match' : 'Sort by AI Match Score'}
+            </Button>
+            <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('list')}
@@ -59,7 +81,7 @@ export default function CandidatesListPage() {
             <Button
               variant={viewMode === 'kanban' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => navigate('/candidates/pipeline')}
+              onClick={() => navigate('/recruiter/candidates/pipeline')}
             >
               <Columns className="h-4 w-4" />
             </Button>
@@ -100,6 +122,8 @@ export default function CandidatesListPage() {
           ))}
         </div>
       )}
+
+      <CandidateMatchModal />
     </motion.div>
   )
 }

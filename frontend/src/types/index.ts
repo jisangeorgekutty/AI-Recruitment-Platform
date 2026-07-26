@@ -201,6 +201,23 @@ export interface ResumeScore {
   recommendations: string[]
 }
 
+export interface ResumeAtsSuggestion {
+  text: string
+  type: 'improvement' | 'warning' | 'suggestion' | 'success' | string
+}
+
+export interface ResumeAtsAnalysis {
+  id: number
+  candidateResumeId: number
+  candidateProfileId: number
+  overallScore: number
+  keywordMatchScore: number
+  formatCompatibilityScore: number
+  sectionCompletenessScore: number
+  suggestions: ResumeAtsSuggestion[]
+  analyzedAt: string
+}
+
 export interface Notification {
   id: string
   type: 'application' | 'interview' | 'offer' | 'system' | 'message' | 'reminder'
@@ -262,3 +279,19 @@ export interface TableFilters {
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
 }
+
+export interface JobMatchResult {
+  id: number
+  jobApplicationId: number
+  jobPostingId: number
+  candidateProfileId: number
+  overallMatchPercentage: number
+  skillMatchPercentage: number
+  experienceMatchPercentage: number
+  matchedSkills: string[]
+  missingSkills: string[]
+  candidateAiSummary: string
+  recommendationFit: 'Strong Fit' | 'Potential Fit' | 'Low Fit' | string
+  evaluatedAt: string
+}
+

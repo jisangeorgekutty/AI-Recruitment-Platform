@@ -13,12 +13,17 @@ import { STAGE_LABELS, STAGE_COLORS } from '@/features/applicants/types'
 import type { CandidateStage, Candidate } from '@/types'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
+import { Sparkles } from 'lucide-react'
+import { CandidateMatchModal } from '@/features/applicants/components/candidate-match-modal'
+import { useJobMatchStore } from '@/store/job-match-store'
+
 const PIPELINE_STAGES: CandidateStage[] = [
   'sourced', 'applied', 'screened', 'interview', 'technical', 'offer', 'hired',
 ]
 
 export default function CandidatePipelinePage() {
   const navigate = useNavigate()
+  const { openMatchModal } = useJobMatchStore()
 
   const { data: pipeline, isLoading, error, refetch } = useQuery({
     queryKey: ['candidate-pipeline'],
@@ -33,7 +38,7 @@ export default function CandidatePipelinePage() {
         title="Pipeline"
         description="Drag and drop candidates through hiring stages"
         actions={
-          <Button variant="outline" onClick={() => navigate('/candidates')}>
+          <Button variant="outline" onClick={() => navigate('/recruiter/candidates')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             List View
           </Button>
@@ -70,15 +75,29 @@ export default function CandidatePipelinePage() {
                         {candidates.map((candidate) => (
                           <div
                             key={candidate.id}
-                            onClick={() => navigate(`/candidates/${candidate.id}`)}
-                            className="cursor-pointer rounded-xl border p-3 transition-all hover:shadow-sm hover:border-primary/20"
+                            onClick={() => navigate(`/recruiter/candidates/${candidate.id}`)}
+                            className="cursor-pointer rounded-xl border p-3 transition-all hover:shadow-sm hover:border-primary/20 relative group"
                           >
-                            <div className="flex items-center gap-2">
-                              <Avatar name={candidate.name} src={candidate.avatar} size="sm" />
-                              <div className="min-w-0 flex-1">
-                                <p className="text-sm font-medium truncate">{candidate.name}</p>
-                                <p className="text-xs text-muted-foreground truncate">{candidate.position}</p>
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <Avatar name={candidate.name} src={candidate.avatar} size="sm" />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-medium truncate">{candidate.name}</p>
+                                  <p className="text-xs text-muted-foreground truncate">{candidate.position}</p>
+                                </div>
                               </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-indigo-500 hover:bg-indigo-500/15"
+                                title="AI Match Score Analysis"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  openMatchModal(Number(candidate.id) || 1)
+                                }}
+                              >
+                                <Sparkles className="w-3.5 h-3.5" />
+                              </Button>
                             </div>
                             <div className="mt-2 flex flex-wrap gap-1">
                               {candidate.skills.slice(0, 2).map((skill) => (
@@ -101,6 +120,8 @@ export default function CandidatePipelinePage() {
           })}
         </div>
       )}
+
+      <CandidateMatchModal />
     </motion.div>
   )
 }

@@ -18,6 +18,7 @@ namespace AiRecruitmentPlatform.Domain.Entities
         public JobPosting JobPosting { get; set; } = null!;
         public CandidateProfileInformation CandidateProfile { get; set; } = null!;
         public CandidateResume? CandidateResume { get; set; }
+        public JobApplicationMatchScore? MatchScore { get; set; }
         public ICollection<JobApplicationAnswer> Answers { get; set; } = new List<JobApplicationAnswer>();
     }
 }

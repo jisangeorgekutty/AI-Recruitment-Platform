@@ -216,6 +216,14 @@ const routes: RouteObject[] = [
     ],
   },
   {
+    path: '/candidates/pipeline',
+    element: <Navigate to="/recruiter/candidates/pipeline" replace />,
+  },
+  {
+    path: '/candidates',
+    element: <Navigate to="/recruiter/candidates" replace />,
+  },
+  {
     path: '/jobs/new',
     element: <Navigate to="/recruiter/jobs/new" replace />,
   },

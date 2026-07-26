@@ -1,5 +1,5 @@
 import api from './api'
-import type { ApiResponse, Job, PaginatedResponse, TableFilters } from '@/types'
+import type { ApiResponse, Job, JobMatchResult, PaginatedResponse, TableFilters } from '@/types'
 
 export interface CreateJobPayload {
   title: string
@@ -68,4 +68,20 @@ export const jobService = {
     }>>('/jobs/stats')
     return response.data.data
   },
+
+  async getMatchScore(applicationId: number | string) {
+    const response = await api.get<ApiResponse<JobMatchResult>>(`/job-match/application/${applicationId}`)
+    return response.data.data
+  },
+
+  async recalculateMatchScore(applicationId: number | string) {
+    const response = await api.post<ApiResponse<JobMatchResult>>(`/job-match/application/${applicationId}/recalculate`)
+    return response.data.data
+  },
+
+  async getRankedApplications(jobId: number | string) {
+    const response = await api.get<ApiResponse<JobMatchResult[]>>(`/job-match/job/${jobId}/ranked-applications`)
+    return response.data.data
+  },
 }
+
