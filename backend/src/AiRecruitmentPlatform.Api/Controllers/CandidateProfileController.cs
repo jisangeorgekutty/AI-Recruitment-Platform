@@ -7,6 +7,7 @@ using AiRecruitmentPlatform.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using AiRecruitmentPlatform.Api.Helpers;
 
 namespace AiRecruitmentPlatform.Api.Controllers
 {
@@ -27,7 +28,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var profile = await _profileService.GetProfileByUserIdAsync(userId);
                 return Ok(ApiResponse<CandidateProfileDto>.SuccessResult(profile, "Candidate profile retrieved."));
             }
@@ -58,7 +59,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var updated = await _profileService.UpdatePersonalInfoAsync(userId, request);
                 return Ok(ApiResponse<CandidateProfileDto>.SuccessResult(updated, "Personal information updated successfully."));
             }
@@ -74,7 +75,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var updated = await _profileService.UpdateSocialLinksAsync(userId, request);
                 return Ok(ApiResponse<CandidateProfileDto>.SuccessResult(updated, "Social links updated successfully."));
             }
@@ -90,7 +91,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var result = await _profileService.AddExperienceAsync(userId, dto);
                 return Ok(ApiResponse<CandidateExperienceDto>.SuccessResult(result, "Experience added successfully."));
             }
@@ -106,7 +107,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var result = await _profileService.UpdateExperienceAsync(userId, id, dto);
                 return Ok(ApiResponse<CandidateExperienceDto>.SuccessResult(result, "Experience updated successfully."));
             }
@@ -122,7 +123,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 await _profileService.DeleteExperienceAsync(userId, id);
                 return Ok(ApiResponse<string>.SuccessResult("Experience deleted", "Experience removed successfully."));
             }
@@ -138,7 +139,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var result = await _profileService.AddEducationAsync(userId, dto);
                 return Ok(ApiResponse<CandidateEducationDto>.SuccessResult(result, "Education added successfully."));
             }
@@ -154,7 +155,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var result = await _profileService.UpdateEducationAsync(userId, id, dto);
                 return Ok(ApiResponse<CandidateEducationDto>.SuccessResult(result, "Education updated successfully."));
             }
@@ -170,7 +171,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 await _profileService.DeleteEducationAsync(userId, id);
                 return Ok(ApiResponse<string>.SuccessResult("Education deleted", "Education removed successfully."));
             }
@@ -186,7 +187,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var result = await _profileService.AddSkillAsync(userId, dto);
                 return Ok(ApiResponse<CandidateSkillDto>.SuccessResult(result, "Skill added successfully."));
             }
@@ -202,7 +203,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 await _profileService.DeleteSkillAsync(userId, id);
                 return Ok(ApiResponse<string>.SuccessResult("Skill deleted", "Skill removed successfully."));
             }
@@ -218,7 +219,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var result = await _profileService.AddLanguageAsync(userId, dto);
                 return Ok(ApiResponse<CandidateLanguageDto>.SuccessResult(result, "Language added successfully."));
             }
@@ -234,7 +235,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 await _profileService.DeleteLanguageAsync(userId, id);
                 return Ok(ApiResponse<string>.SuccessResult("Language deleted", "Language removed successfully."));
             }
@@ -246,11 +247,11 @@ namespace AiRecruitmentPlatform.Api.Controllers
 
         [HttpPost("avatar")]
         [Authorize]
-        public async Task<ActionResult<ApiResponse<string>>> UploadAvatar([FromForm] IFormFile file)
+        public async Task<ActionResult<ApiResponse<string>>> UploadAvatar(IFormFile file)
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var url = await _profileService.UploadAvatarAsync(userId, file);
                 return Ok(ApiResponse<string>.SuccessResult(url ?? string.Empty, "Avatar uploaded successfully."));
             }
@@ -262,11 +263,11 @@ namespace AiRecruitmentPlatform.Api.Controllers
 
         [HttpPost("resume")]
         [Authorize]
-        public async Task<ActionResult<ApiResponse<string>>> UploadResume([FromForm] IFormFile file)
+        public async Task<ActionResult<ApiResponse<string>>> UploadResume(IFormFile file)
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var url = await _profileService.UploadResumeAsync(userId, file);
                 return Ok(ApiResponse<string>.SuccessResult(url ?? string.Empty, "Resume uploaded successfully."));
             }
@@ -275,19 +276,5 @@ namespace AiRecruitmentPlatform.Api.Controllers
                 return BadRequest(ApiResponse<string>.FailureResult(ex.Message));
             }
         }
-
-        #region Helpers
-
-        private long GetCurrentUserId()
-        {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("uid");
-            if (long.TryParse(userIdClaim, out var userId))
-            {
-                return userId;
-            }
-            throw new InvalidOperationException("User identity invalid.");
-        }
-
-        #endregion
     }
 }

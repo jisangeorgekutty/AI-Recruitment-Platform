@@ -8,6 +8,7 @@ using AiRecruitmentPlatform.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using AiRecruitmentPlatform.Api.Helpers;
 
 namespace AiRecruitmentPlatform.Api.Controllers
 {
@@ -105,7 +106,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 await _authService.LogoutAsync(userId);
                 RemoveRefreshTokenCookie();
                 return Ok(ApiResponse<string>.SuccessResult("Logged out", "Logout successful"));
@@ -122,7 +123,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var response = await _authService.GetProfileAsync(userId);
                 return Ok(ApiResponse<UserProfileResponse>.SuccessResult(response));
             }
@@ -138,7 +139,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var response = await _authService.UpdateProfileAsync(userId, request);
                 return Ok(ApiResponse<UserProfileResponse>.SuccessResult(response, "Profile updated successfully"));
             }
@@ -154,7 +155,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var response = await _authService.CompleteOnboardingAsync(userId);
                 return Ok(ApiResponse<UserProfileResponse>.SuccessResult(response, "Onboarding completed successfully"));
             }
@@ -170,7 +171,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 await _authService.ChangePasswordAsync(userId, request);
                 return Ok(ApiResponse<string>.SuccessResult("Password changed", "Password changed successfully"));
             }
@@ -237,16 +238,6 @@ namespace AiRecruitmentPlatform.Api.Controllers
             };
 
             Response.Cookies.Delete("refreshToken", cookieOptions);
-        }
-
-        private long GetCurrentUserId()
-        {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("uid");
-            if (long.TryParse(userIdClaim, out var userId))
-            {
-                return userId;
-            }
-            throw new InvalidOperationException("User identity invalid.");
         }
 
         #endregion

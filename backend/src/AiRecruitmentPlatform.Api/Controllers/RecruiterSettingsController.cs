@@ -6,6 +6,7 @@ using AiRecruitmentPlatform.Application.DTOs.Settings;
 using AiRecruitmentPlatform.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AiRecruitmentPlatform.Api.Helpers;
 
 namespace AiRecruitmentPlatform.Api.Controllers
 {
@@ -26,7 +27,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var result = await _preferenceService.GetPreferencesByUserIdAsync(userId);
                 return Ok(ApiResponse<RecruiterNotificationPreferenceDto>.SuccessResult(result));
             }
@@ -41,7 +42,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var result = await _preferenceService.UpdatePreferencesAsync(userId, request);
                 return Ok(ApiResponse<RecruiterNotificationPreferenceDto>.SuccessResult(result, "Notification preferences updated successfully"));
             }
@@ -49,16 +50,6 @@ namespace AiRecruitmentPlatform.Api.Controllers
             {
                 return BadRequest(ApiResponse<RecruiterNotificationPreferenceDto>.FailureResult(ex.Message));
             }
-        }
-
-        private long GetCurrentUserId()
-        {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("uid");
-            if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out var userId))
-            {
-                throw new UnauthorizedAccessException("Invalid user token context");
-            }
-            return userId;
         }
     }
 }

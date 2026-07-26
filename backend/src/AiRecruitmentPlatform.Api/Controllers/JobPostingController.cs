@@ -6,6 +6,7 @@ using AiRecruitmentPlatform.Application.DTOs.Job;
 using AiRecruitmentPlatform.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AiRecruitmentPlatform.Api.Helpers;
 
 namespace AiRecruitmentPlatform.Api.Controllers
 {
@@ -41,7 +42,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var stats = await _jobService.GetJobStatsAsync(userId);
                 return Ok(ApiResponse<JobStatsDto>.SuccessResult(stats));
             }
@@ -76,7 +77,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var job = await _jobService.CreateJobAsync(userId, dto);
                 return CreatedAtAction(nameof(GetJobById), new { id = job.Id }, ApiResponse<JobPostingDto>.SuccessResult(job, "Job posting created successfully."));
             }
@@ -92,7 +93,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var job = await _jobService.UpdateJobAsync(id, userId, dto);
                 return Ok(ApiResponse<JobPostingDto>.SuccessResult(job, "Job posting updated successfully."));
             }
@@ -108,7 +109,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var success = await _jobService.DeleteJobAsync(id, userId);
                 if (!success)
                 {
@@ -128,7 +129,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var job = await _jobService.UpdateJobStatusAsync(id, userId, dto.Status);
                 return Ok(ApiResponse<JobPostingDto>.SuccessResult(job, "Job status updated successfully."));
             }
@@ -144,7 +145,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var job = await _jobService.DuplicateJobAsync(id, userId);
                 return Ok(ApiResponse<JobPostingDto>.SuccessResult(job, "Job duplicated successfully."));
             }
@@ -152,16 +153,6 @@ namespace AiRecruitmentPlatform.Api.Controllers
             {
                 return BadRequest(ApiResponse<JobPostingDto>.FailureResult(ex.Message));
             }
-        }
-
-        private long GetCurrentUserId()
-        {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("uid");
-            if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out var userId))
-            {
-                throw new UnauthorizedAccessException("Invalid user token context");
-            }
-            return userId;
         }
     }
 }

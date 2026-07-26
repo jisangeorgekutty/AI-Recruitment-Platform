@@ -7,6 +7,7 @@ using AiRecruitmentPlatform.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using AiRecruitmentPlatform.Api.Helpers;
 
 namespace AiRecruitmentPlatform.Api.Controllers
 {
@@ -27,7 +28,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var profile = await _companyService.GetCompanyProfileByUserIdAsync(userId);
                 return Ok(ApiResponse<CompanyProfileDto>.SuccessResult(profile));
             }
@@ -42,7 +43,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 var profile = await _companyService.UpdateCompanyProfileAsync(userId, request);
                 return Ok(ApiResponse<CompanyProfileDto>.SuccessResult(profile, "Company profile updated successfully"));
             }
@@ -57,7 +58,7 @@ namespace AiRecruitmentPlatform.Api.Controllers
         {
             try
             {
-                var userId = GetCurrentUserId();
+                var userId = User.GetCurrentUserId();
                 if (logoFile == null || logoFile.Length == 0)
                 {
                     return BadRequest(ApiResponse<string>.FailureResult("No logo file uploaded"));
@@ -70,16 +71,6 @@ namespace AiRecruitmentPlatform.Api.Controllers
             {
                 return BadRequest(ApiResponse<string>.FailureResult(ex.Message));
             }
-        }
-
-        private long GetCurrentUserId()
-        {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("uid");
-            if (string.IsNullOrEmpty(userIdStr) || !long.TryParse(userIdStr, out var userId))
-            {
-                throw new UnauthorizedAccessException("Invalid user token context");
-            }
-            return userId;
         }
     }
 }
