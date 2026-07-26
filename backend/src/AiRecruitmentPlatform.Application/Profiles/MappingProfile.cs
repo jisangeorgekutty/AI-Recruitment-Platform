@@ -58,6 +58,20 @@ namespace AiRecruitmentPlatform.Application.Profiles
             CreateMap<DTOs.Job.UpdateJobPostingDto, JobPosting>();
             CreateMap<JobSkill, DTOs.Job.JobSkillDto>().ReverseMap();
             CreateMap<JobScreeningQuestion, DTOs.Job.JobScreeningQuestionDto>().ReverseMap();
+
+            // Phase 3 Mappings
+            CreateMap<JobApplication, DTOs.Job.JobApplicationDto>()
+                .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.JobPosting != null ? src.JobPosting.Title : string.Empty))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.JobPosting != null && src.JobPosting.CompanyProfile != null ? src.JobPosting.CompanyProfile.CompanyName : string.Empty))
+                .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.JobPosting != null && src.JobPosting.CompanyProfile != null ? src.JobPosting.CompanyProfile.CompanyLogoUrl : null))
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobPosting != null ? src.JobPosting.Location : string.Empty))
+                .ForMember(dest => dest.ResumeUrl, opt => opt.MapFrom(src => src.CustomResumeUrl ?? (src.CandidateResume != null ? src.CandidateResume.FileUrl : null)));
+
+            CreateMap<JobApplicationAnswer, DTOs.Job.JobApplicationAnswerDto>()
+                .ForMember(dest => dest.QuestionText, opt => opt.MapFrom(src => src.JobScreeningQuestion != null ? src.JobScreeningQuestion.QuestionText : null));
+
+            CreateMap<CandidateResume, CandidateResumeDto>().ReverseMap();
+            CreateMap<CandidateSavedJob, DTOs.Job.CandidateSavedJobDto>().ReverseMap();
         }
     }
 }

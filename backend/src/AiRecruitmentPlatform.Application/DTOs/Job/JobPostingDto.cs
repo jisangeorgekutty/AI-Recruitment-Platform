@@ -26,6 +26,7 @@ namespace AiRecruitmentPlatform.Application.DTOs.Job
         public string Status { get; set; } = "Draft";
         public int ViewsCount { get; set; }
         public int ApplicationsCount { get; set; }
+        public bool IsSaved { get; set; }
         public long DisplayOrder { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime? ModifiedOn { get; set; }

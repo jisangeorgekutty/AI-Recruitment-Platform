@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -7,81 +7,210 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { PageHeader } from '@/components/page-header'
 import { Avatar } from '@/components/ui/avatar'
-import { Search, MapPin, Heart, Briefcase, DollarSign } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Search, MapPin, Heart, Briefcase, DollarSign, Loader2 } from 'lucide-react'
+import { jobSearchService } from '@/services/job-search.service'
+import { savedJobService } from '@/services/saved-job.service'
+import { ApplyModal } from '../components/ApplyModal'
+import type { Job } from '@/types'
+import { cn, formatDate } from '@/lib/utils'
 import toast from 'react-hot-toast'
-
-const sampleJobs = [
-  { id: '1', title: 'Senior Frontend Engineer', company: 'Google', location: 'Mountain View, CA', salary: '$150k - $220k', type: 'Full-time', remote: 'Hybrid', skills: ['React', 'TypeScript', 'GraphQL'], posted: '2 days ago' },
-  { id: '2', title: 'Full Stack Developer', company: 'Stripe', location: 'Remote', salary: '$130k - $190k', type: 'Full-time', remote: 'Remote', skills: ['Node.js', 'React', 'PostgreSQL'], posted: '1 week ago' },
-  { id: '3', title: 'Product Designer', company: 'Figma', location: 'San Francisco, CA', salary: '$120k - $180k', type: 'Full-time', remote: 'On-site', skills: ['Figma', 'UI/UX', 'Design Systems'], posted: '3 days ago' },
-  { id: '4', title: 'Backend Engineer', company: 'Amazon', location: 'Seattle, WA', salary: '$140k - $200k', type: 'Full-time', remote: 'Hybrid', skills: ['Java', 'AWS', 'Microservices'], posted: '5 days ago' },
-  { id: '5', title: 'DevOps Engineer', company: 'Netflix', location: 'Los Gatos, CA', salary: '$160k - $240k', type: 'Full-time', remote: 'Remote', skills: ['Kubernetes', 'Terraform', 'CI/CD'], posted: '1 day ago' },
-  { id: '6', title: 'ML Engineer', company: 'OpenAI', location: 'San Francisco, CA', salary: '$180k - $300k', type: 'Full-time', remote: 'On-site', skills: ['Python', 'PyTorch', 'NLP'], posted: 'Just now' },
-]
 
 export default function CandidateJobSearchPage() {
   const [search, setSearch] = useState('')
-  const [saved, setSaved] = useState<Set<string>>(new Set())
+  const [employmentType, setEmploymentType] = useState('')
+  const [remoteType, setRemoteType] = useState('')
+  const [jobs, setJobs] = useState<Job[]>([])
+  const [savedSet, setSavedSet] = useState<Set<number>>(new Set())
+  const [isLoading, setIsLoading] = useState(false)
 
-  const toggleSaved = (id: string) => {
-    setSaved((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-    toast.success(saved.has(id) ? 'Removed from saved' : 'Job saved!')
+  const [selectedJobToApply, setSelectedJobToApply] = useState<Job | null>(null)
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
+
+  const fetchJobs = async () => {
+    setIsLoading(true)
+    try {
+      const paged = await jobSearchService.searchJobs({
+        search: search || undefined,
+        employmentType: employmentType || undefined,
+        remoteType: remoteType || undefined,
+        status: 'Active',
+      })
+      setJobs(paged?.items || paged?.data || [])
+
+      // Collect saved job ids
+      const savedList = await savedJobService.getMySavedJobs().catch(() => [])
+      if (savedList) {
+        setSavedSet(new Set(savedList.map((s) => Number(s.jobPostingId))))
+      }
+    } catch (err: any) {
+      toast.error('Failed to search jobs.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchJobs()
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [search, employmentType, remoteType])
+
+  const toggleSaved = async (e: React.MouseEvent, jobId: number | string) => {
+    e.stopPropagation()
+    const numericId = Number(jobId)
+    const isCurrentlySaved = savedSet.has(numericId)
+
+    try {
+      if (isCurrentlySaved) {
+        await savedJobService.removeSavedJob(numericId)
+        setSavedSet((prev) => {
+          const next = new Set(prev)
+          next.delete(numericId)
+          return next
+        })
+        toast.success('Removed from saved jobs')
+      } else {
+        await savedJobService.saveJob(numericId)
+        setSavedSet((prev) => new Set(prev).add(numericId))
+        toast.success('Job saved successfully!')
+      }
+    } catch (err: any) {
+      toast.error('Failed to update saved job.')
+    }
+  }
+
+  const handleOpenApply = (job: Job) => {
+    setSelectedJobToApply(job)
+    setIsApplyModalOpen(true)
   }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <PageHeader title="Find Your Next Role" description="Discover opportunities that match your skills" />
+
+      {/* Filter Controls */}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search by title, skill, or company..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          <Input
+            placeholder="Search by title, skill, or department..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
         </div>
-        <Select options={[{ value: '', label: 'All Types' }, { value: 'full-time', label: 'Full-time' }, { value: 'contract', label: 'Contract' }, { value: 'internship', label: 'Internship' }]} className="w-36" />
-        <Select options={[{ value: '', label: 'All Locations' }, { value: 'remote', label: 'Remote' }, { value: 'hybrid', label: 'Hybrid' }, { value: 'on-site', label: 'On-site' }]} className="w-36" />
-        <Button variant="outline">More Filters</Button>
+
+        <Select
+          value={employmentType}
+          onChange={(e) => setEmploymentType(e.target.value)}
+          options={[
+            { value: '', label: 'All Types' },
+            { value: 'FullTime', label: 'Full-time' },
+            { value: 'PartTime', label: 'Part-time' },
+            { value: 'Contract', label: 'Contract' },
+            { value: 'Internship', label: 'Internship' },
+          ]}
+          className="w-36"
+        />
+
+        <Select
+          value={remoteType}
+          onChange={(e) => setRemoteType(e.target.value)}
+          options={[
+            { value: '', label: 'All Locations' },
+            { value: 'Remote', label: 'Remote' },
+            { value: 'Hybrid', label: 'Hybrid' },
+            { value: 'OnSite', label: 'On-site' },
+          ]}
+          className="w-36"
+        />
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {sampleJobs.map((job) => (
-          <motion.div key={job.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }}>
-            <Card className="cursor-pointer h-full hover:shadow-md transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <Avatar name={job.company} size="lg" />
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-semibold truncate">{job.title}</h3>
-                      <p className="text-sm text-muted-foreground">{job.company}</p>
-                      <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{job.location}</span>
-                        <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{job.salary}</span>
-                        <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" />{job.type}</span>
-                        <Badge variant="secondary" className="text-[10px]">{job.remote}</Badge>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center p-12 text-muted-foreground gap-2">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" /> Searching job openings...
+        </div>
+      ) : jobs.length === 0 ? (
+        <div className="p-12 text-center border border-dashed rounded-2xl space-y-2">
+          <p className="text-base font-semibold">No active jobs found</p>
+          <p className="text-sm text-muted-foreground">Try clearing filters or searching for another role title.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {jobs.map((job) => {
+            const numId = Number(job.id)
+            const isSaved = savedSet.has(numId)
+
+            return (
+              <motion.div key={job.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }}>
+                <Card className="cursor-pointer h-full hover:shadow-md hover:border-primary/50 transition-all flex flex-col justify-between">
+                  <CardContent className="p-5 flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <Avatar name={job.companyName || 'Company'} src={job.companyLogoUrl} size="lg" />
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-base font-semibold truncate">{job.title}</h3>
+                            <p className="text-sm text-muted-foreground">{job.companyName}</p>
+
+                            <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{job.location}</span>
+                              {job.showSalary && job.salaryMin && job.salaryMax && (
+                                <span className="flex items-center gap-1">
+                                  <DollarSign className="h-3 w-3" />${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" />{job.employmentType}</span>
+                              <Badge variant="secondary" className="text-[10px]">{job.remoteType}</Badge>
+                            </div>
+
+                            {job.skills && job.skills.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-3">
+                                {job.skills.map((skill) => (
+                                  <Badge key={skill.id || skill.skillName} variant="outline" className="text-[10px]">
+                                    {skill.skillName}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+
+                            <p className="text-xs text-muted-foreground mt-3">
+                              Posted {formatDate(job.createdOn || job.createdAt || new Date(), 'relative')}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={(e) => toggleSaved(e, job.id)}
+                          className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-accent transition-colors"
+                          title={isSaved ? 'Remove saved job' : 'Save job'}
+                        >
+                          <Heart className={cn('h-4 w-4', isSaved && 'fill-red-500 text-red-500')} />
+                        </button>
                       </div>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {job.skills.map((skill) => (<Badge key={skill} variant="outline" className="text-[10px]">{skill}</Badge>))}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2">{job.posted}</p>
                     </div>
-                  </div>
-                  <button onClick={() => toggleSaved(job.id)} className="shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-accent">
-                    <Heart className={cn('h-4 w-4', saved.has(job.id) && 'fill-red-500 text-red-500')} />
-                  </button>
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <Button size="sm" className="flex-1">Quick Apply</Button>
-                  <Button size="sm" variant="outline" className="flex-1">View Details</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
+
+                    <div className="flex gap-2 mt-4 pt-2 border-t">
+                      <Button size="sm" className="flex-1" onClick={() => handleOpenApply(job)}>
+                        Quick Apply
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </div>
+      )}
+
+      {selectedJobToApply && (
+        <ApplyModal
+          job={selectedJobToApply}
+          isOpen={isApplyModalOpen}
+          onClose={() => { setIsApplyModalOpen(false); setSelectedJobToApply(null) }}
+        />
+      )}
     </motion.div>
   )
 }

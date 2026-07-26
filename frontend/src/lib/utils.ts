@@ -5,23 +5,45 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDate(date: string | Date, format: 'short' | 'long' | 'relative' = 'short'): string {
-  const d = new Date(date)
+export function formatDate(date: string | Date | null | undefined, format: 'short' | 'long' | 'relative' = 'short'): string {
+  if (!date) return ''
+
+  let d: Date
+  if (typeof date === 'string') {
+    const str = date.trim()
+    // If string has ISO format without 'Z' or timezone offset, parse as UTC by appending 'Z'
+    if (str.includes('T') && !str.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(str)) {
+      d = new Date(str + 'Z')
+    } else {
+      d = new Date(str)
+    }
+  } else {
+    d = new Date(date)
+  }
+
+  if (isNaN(d.getTime())) return ''
+
   if (format === 'relative') {
     const now = new Date()
     const diff = now.getTime() - d.getTime()
+
+    // Handle small clock skews between client and server
+    if (diff <= 60000) return 'Just now'
+
     const minutes = Math.floor(diff / 60000)
     const hours = Math.floor(minutes / 60)
     const days = Math.floor(hours / 24)
-    if (minutes < 1) return 'Just now'
+
     if (minutes < 60) return `${minutes}m ago`
     if (hours < 24) return `${hours}h ago`
     if (days < 7) return `${days}d ago`
     return d.toLocaleDateString()
   }
+
   if (format === 'long') {
     return d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
   }
+
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 

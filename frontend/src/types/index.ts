@@ -235,11 +235,15 @@ export interface Activity {
 }
 
 export interface PaginatedResponse<T> {
-  data: T[]
-  total: number
+  items?: T[]
+  data?: T[]
+  totalCount?: number
+  total?: number
   page: number
   pageSize: number
   totalPages: number
+  hasNextPage?: boolean
+  hasPreviousPage?: boolean
 }
 
 export interface ApiResponse<T> {

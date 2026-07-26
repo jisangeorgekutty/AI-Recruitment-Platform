@@ -28,6 +28,10 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence
         public DbSet<JobPosting> JobPostings { get; set; } = null!;
         public DbSet<JobSkill> JobSkills { get; set; } = null!;
         public DbSet<JobScreeningQuestion> JobScreeningQuestions { get; set; } = null!;
+        public DbSet<JobApplication> JobApplications { get; set; } = null!;
+        public DbSet<JobApplicationAnswer> JobApplicationAnswers { get; set; } = null!;
+        public DbSet<CandidateResume> CandidateResumes { get; set; } = null!;
+        public DbSet<CandidateSavedJob> CandidateSavedJobs { get; set; } = null!;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

@@ -67,14 +67,14 @@ flowchart TD
   - Auto-routing new users to role-specific onboarding wizards upon first sign-in. 
 ---
 
-### 📌 Phase 2: Job Management & Employer Portal *(Current Focus)*
+### 📌 Phase 2: Job Management & Employer Portal *(Completed)*
 - [ ] Job Post Creation Wizard (Role Title, Skills, Experience Level, Salary Range, Location, Remote Type).
 - [ ] Customizable Screening Criteria (Mandatory skills, knock-out questions).
 - [ ] Job Listing Lifecycle Management (Draft, Active, Paused, Closed).
 
 ---
 
-### 📌 Phase 3: Candidate Portal & Resume Processing
+### 📌 Phase 3: Candidate Portal & Resume Processing *(In Progress)*
 - [ ] Job Search & Discovery feed with multi-filter search (Skills, Location, Salary).
 - [ ] Job Application Flow (One-Click Apply with profile vs Custom Upload).
 - [ ] Document Storage integration (Local / AWS S3 / Azure Blob Storage) for resumes.

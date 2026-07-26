@@ -87,6 +87,13 @@ namespace AiRecruitmentPlatform.Infrastructure
             services.AddScoped<ICompanyProfileService, CompanyProfileService>();
             services.AddScoped<IJobPostingRepository, JobPostingRepository>();
             services.AddScoped<IJobPostingService, JobPostingService>();
+            services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
+            services.AddScoped<ICandidateResumeRepository, CandidateResumeRepository>();
+            services.AddScoped<ICandidateSavedJobRepository, CandidateSavedJobRepository>();
+            services.AddScoped<IJobSearchService, JobSearchService>();
+            services.AddScoped<IJobApplicationService, JobApplicationService>();
+            services.AddScoped<ICandidateResumeService, CandidateResumeService>();
+            services.AddScoped<ICandidateSavedJobService, CandidateSavedJobService>();
 
             return services;
         }
