@@ -107,6 +107,8 @@ namespace AiRecruitmentPlatform.Infrastructure
             services.AddScoped<IInterviewRepository, InterviewRepository>();
             services.AddScoped<IInterviewService, InterviewService>();
             services.AddScoped<IAiInterviewAssessmentService, AiInterviewAssessmentService>();
+            services.AddScoped<IJobOfferRepository, JobOfferRepository>();
+            services.AddScoped<IJobOfferService, JobOfferService>();
 
             return services;
         }

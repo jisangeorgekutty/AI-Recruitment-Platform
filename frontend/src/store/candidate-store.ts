@@ -10,6 +10,8 @@ interface CandidateState {
   selectedCandidates: string[]
   comparisonCandidates: string[]
   selectedJobId: string | null
+  pipeline: Record<string, Candidate[]>
+  isLoading: boolean
 
   setCandidates: (candidates: Candidate[]) => void
   setTotal: (total: number) => void

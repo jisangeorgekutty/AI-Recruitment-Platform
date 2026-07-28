@@ -21,6 +21,7 @@ namespace AiRecruitmentPlatform.Application.Services
         private readonly IJobApplicationMatchScoreRepository _matchScoreRepository;
         private readonly IIdentityService _identityService;
         private readonly IMapper _mapper;
+        private readonly IJobOfferRepository _jobOfferRepository;
 
         public CandidateManagementService(
             IJobApplicationRepository jobApplicationRepository,
@@ -29,7 +30,8 @@ namespace AiRecruitmentPlatform.Application.Services
             ICompanyProfileRepository companyProfileRepository,
             IJobApplicationMatchScoreRepository matchScoreRepository,
             IIdentityService identityService,
-            IMapper mapper)
+            IMapper mapper,
+            IJobOfferRepository jobOfferRepository)
         {
             _jobApplicationRepository = jobApplicationRepository;
             _jobPostingRepository = jobPostingRepository;
@@ -38,6 +40,7 @@ namespace AiRecruitmentPlatform.Application.Services
             _matchScoreRepository = matchScoreRepository;
             _identityService = identityService;
             _mapper = mapper;
+            _jobOfferRepository = jobOfferRepository;
         }
 
         public async Task<PaginatedResponse<CandidateListDto>> GetCandidatesAsync(
@@ -166,14 +169,19 @@ namespace AiRecruitmentPlatform.Application.Services
 
         public async Task<bool> UpdateCandidateStageAsync(long recruiterUserId, long applicationId, string stage)
         {
-            var application = await _jobApplicationRepository.Get(applicationId);
+            var application = await _jobApplicationRepository.GetByIdWithDetailsAsync(applicationId);
             if (application == null) return false;
 
             var mappedStatus = MapStageToStatus(stage);
             application.Status = mappedStatus;
             await _jobApplicationRepository.Update(application);
-            await _jobApplicationRepository.SaveChanges();
 
+            if (mappedStatus.Equals("Offered", StringComparison.OrdinalIgnoreCase))
+            {
+                await EnsureJobOfferExistsAsync(application);
+            }
+
+            await _jobApplicationRepository.SaveChanges();
             return true;
         }
 
@@ -183,16 +191,44 @@ namespace AiRecruitmentPlatform.Application.Services
 
             foreach (var update in updates)
             {
-                var application = await _jobApplicationRepository.Get(update.ApplicationId);
+                var application = await _jobApplicationRepository.GetByIdWithDetailsAsync(update.ApplicationId);
                 if (application != null)
                 {
-                    application.Status = MapStageToStatus(update.Stage);
+                    var mappedStatus = MapStageToStatus(update.Stage);
+                    application.Status = mappedStatus;
                     await _jobApplicationRepository.Update(application);
+
+                    if (mappedStatus.Equals("Offered", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await EnsureJobOfferExistsAsync(application);
+                    }
                 }
             }
 
             await _jobApplicationRepository.SaveChanges();
             return true;
+        }
+
+        private async Task EnsureJobOfferExistsAsync(JobApplication application)
+        {
+            var existingOffer = await _jobOfferRepository.GetByApplicationIdAsync(application.Id);
+            if (existingOffer == null)
+            {
+                decimal salary = application.JobPosting?.SalaryMax ?? application.JobPosting?.SalaryMin ?? 100000m;
+                string currency = application.JobPosting?.Currency ?? "USD";
+
+                var newOffer = new JobOffer
+                {
+                    JobApplicationId = application.Id,
+                    OfferedSalary = salary,
+                    Currency = currency,
+                    SalaryPeriod = "yearly",
+                    OfferedDate = DateTime.UtcNow,
+                    ExpiresAt = DateTime.UtcNow.AddDays(14),
+                    Status = "Pending"
+                };
+                await _jobOfferRepository.Add(newOffer);
+            }
         }
 
         private async Task<CandidateListDto?> MapToCandidateListDto(JobApplication app)

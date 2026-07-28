@@ -88,25 +88,26 @@ flowchart TD
 
 ---
 
-### 📌 Phase 5: AI Interview & Candidate Assessment System *(In Progress)*
+### 📌 Phase 5: AI Interview & Candidate Assessment System *(Completed)*
 - [ ] **Automated Screening Interviews**: AI-driven dynamic interview questions tailored to the job description and candidate resume.
 - [ ] **Answer Evaluation Engine**: AI analyzes candidate text/audio/video responses for depth, correctness, and soft skills.
 - [ ] **AI Scorecard**: Generate candidate evaluation summary for hiring managers.
 
 ---
 
-### 📌 Phase 6: Recruiter ATS Dashboard & Pipeline
+### 📌 Phase 6: Recruiter ATS Dashboard & Pipeline *(Completed)*
 - [ ] **Interactive Hiring Pipeline (Kanban Board)**: Drag-and-drop candidates through stages (`Applied` ➔ `AI Screened` ➔ `Shortlisted` ➔ `Interview Scheduled` ➔ `Offered` ➔ `Rejected`).
 - [ ] AI-Ranked Candidate List (Sorted by match score).
 - [ ] Side-by-Side Candidate Comparison View.
 
 ---
 
-### 📌 Phase 7: Analytics, Notifications & Administration
+### 📌 Phase 7: Analytics, Notifications & Administration *(In Progress*
+
 - [ ] **Real-time Notifications**: Email & In-app alerts for application status updates, interview invitations, and new matches.
 - [ ] **Recruitment Analytics**: Time-to-hire, source effectiveness, applicant funnel metrics.
 - [ ] **Admin Panel**: Platform user management, AI usage monitoring & token logs.
-
+ 
 ---
 
 ## 🛠 Local Setup & Running Instructions

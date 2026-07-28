@@ -21,6 +21,7 @@ import { jobService } from '@/services/job.service'
 import { PipelineColumn } from '@/features/applicants/components/pipeline-column'
 import { PipelineCandidateCard } from '@/features/applicants/components/pipeline-candidate-card'
 import { CandidateMatchModal } from '@/features/applicants/components/candidate-match-modal'
+import { SendOfferModal } from '@/features/applicants/components/send-offer-modal'
 import { useCandidateStore } from '@/store/candidate-store'
 import type { CandidateStage, Candidate } from '@/types'
 
@@ -40,6 +41,8 @@ export default function CandidatePipelinePage() {
 
   const [activeCandidate, setActiveCandidate] = useState<Candidate | null>(null)
   const [localPipeline, setLocalPipeline] = useState<Record<string, Candidate[]>>({})
+  const [offerModalCandidate, setOfferModalCandidate] = useState<Candidate | null>(null)
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false)
 
   // Sensors for DnD (prevent accidental drags when clicking buttons)
   const sensors = useSensors(
@@ -134,6 +137,12 @@ export default function CandidatePipelinePage() {
       { id: candidateId, stage: targetStage },
       { context: { previousPipeline } } as any
     )
+
+    // Open offer modal if target is offer
+    if (targetStage === 'offer') {
+      setOfferModalCandidate(candidateObj)
+      setIsOfferModalOpen(true)
+    }
   }
 
   if (error) return <ErrorState onRetry={refetch} />
@@ -233,6 +242,11 @@ export default function CandidatePipelinePage() {
       )}
 
       <CandidateMatchModal />
+      <SendOfferModal
+        candidate={offerModalCandidate}
+        isOpen={isOfferModalOpen}
+        onClose={() => setIsOfferModalOpen(false)}
+      />
     </motion.div>
   )
 }

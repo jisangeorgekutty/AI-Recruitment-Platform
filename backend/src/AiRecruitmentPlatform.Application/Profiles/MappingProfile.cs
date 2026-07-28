@@ -88,6 +88,13 @@ namespace AiRecruitmentPlatform.Application.Profiles
                 .ForMember(dest => dest.ResumeScore, opt => opt.MapFrom(src => src.MatchScore != null ? (int?)src.MatchScore.OverallMatchPercentage : null))
                 .ForMember(dest => dest.RecommendationFit, opt => opt.MapFrom(src => src.MatchScore != null ? src.MatchScore.RecommendationFit : null))
                 .ForMember(dest => dest.CandidateAiSummary, opt => opt.MapFrom(src => src.MatchScore != null ? src.MatchScore.CandidateAiSummary : null));
+
+            CreateMap<JobOffer, DTOs.Job.JobOfferDto>()
+                .ForMember(dest => dest.JobPostingId, opt => opt.MapFrom(src => src.JobApplication != null ? src.JobApplication.JobPostingId : 0))
+                .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.JobApplication != null && src.JobApplication.JobPosting != null ? src.JobApplication.JobPosting.Title : string.Empty))
+                .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.JobApplication != null && src.JobApplication.JobPosting != null && src.JobApplication.JobPosting.CompanyProfile != null ? src.JobApplication.JobPosting.CompanyProfile.CompanyName : string.Empty))
+                .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.JobApplication != null && src.JobApplication.JobPosting != null && src.JobApplication.JobPosting.CompanyProfile != null ? src.JobApplication.JobPosting.CompanyProfile.CompanyLogoUrl : null))
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobApplication != null && src.JobApplication.JobPosting != null ? src.JobApplication.JobPosting.Location : string.Empty));
         }
     }
 }
