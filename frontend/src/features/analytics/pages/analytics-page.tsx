@@ -30,7 +30,7 @@ export default function AnalyticsPage() {
     queryFn: () => analyticsService.getSourceBreakdown(),
   })
 
-  if (statsError) return <ErrorState onRetry={refetch} />
+  if (statsError && !stats) return <ErrorState onRetry={refetch} />
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">

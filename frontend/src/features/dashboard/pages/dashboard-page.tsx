@@ -59,7 +59,7 @@ export default function DashboardPage() {
     queryFn: () => candidateService.list({ pageSize: 5, sortBy: 'rating', sortOrder: 'desc' }),
   })
 
-  if (statsError) {
+  if (statsError && !stats) {
     return <ErrorState onRetry={refetchStats} />
   }
 

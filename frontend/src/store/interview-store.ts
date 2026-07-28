@@ -11,6 +11,12 @@ interface InterviewState {
   selectedInterview: Interview | null
   isLoading: boolean
 
+  // Phase 5 AI Screening & Scorecard State
+  activeScreeningInterview: Interview | null
+  activeScorecardInterview: Interview | null
+  isScreeningRoomOpen: boolean
+  isScorecardModalOpen: boolean
+
   setInterviews: (interviews: Interview[]) => void
   setTotal: (total: number) => void
   setCurrentPage: (page: number) => void
@@ -22,6 +28,11 @@ interface InterviewState {
   addInterview: (interview: Interview) => void
   updateInterview: (id: string, data: Partial<Interview>) => void
   removeInterview: (id: string) => void
+
+  setActiveScreeningInterview: (interview: Interview | null) => void
+  setActiveScorecardInterview: (interview: Interview | null) => void
+  setScreeningRoomOpen: (isOpen: boolean) => void
+  setScorecardModalOpen: (isOpen: boolean) => void
 }
 
 const defaultFilters: TableFilters = {
@@ -40,6 +51,11 @@ export const useInterviewStore = create<InterviewState>()((set) => ({
   upcomingInterviews: [],
   selectedInterview: null,
   isLoading: false,
+
+  activeScreeningInterview: null,
+  activeScorecardInterview: null,
+  isScreeningRoomOpen: false,
+  isScorecardModalOpen: false,
 
   setInterviews: (interviews) => set({ interviews }),
   setTotal: (total) => set({ total }),
@@ -71,4 +87,9 @@ export const useInterviewStore = create<InterviewState>()((set) => ({
       interviews: state.interviews.filter((i) => i.id !== id),
       total: state.total - 1,
     })),
+
+  setActiveScreeningInterview: (interview) => set({ activeScreeningInterview: interview, isScreeningRoomOpen: !!interview }),
+  setActiveScorecardInterview: (interview) => set({ activeScorecardInterview: interview, isScorecardModalOpen: !!interview }),
+  setScreeningRoomOpen: (isOpen) => set({ isScreeningRoomOpen: isOpen }),
+  setScorecardModalOpen: (isOpen) => set({ isScorecardModalOpen: isOpen }),
 }))

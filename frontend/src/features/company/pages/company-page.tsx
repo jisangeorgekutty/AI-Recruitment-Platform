@@ -105,11 +105,13 @@ export default function CompanyPage() {
   const uploadLogoMutation = useMutation({
     mutationFn: companyService.uploadLogo,
     onSuccess: (logoPath) => {
-      setLogoUrl(logoPath)
-      setStoreLogoUrl(logoPath)
-      updateCompanyState({ companyLogoUrl: logoPath })
-      queryClient.invalidateQueries({ queryKey: ['company-profile'] })
-      toast.success('Company logo uploaded successfully!')
+      if (logoPath) {
+        setLogoUrl(logoPath)
+        setStoreLogoUrl(logoPath)
+        updateCompanyState({ companyLogoUrl: logoPath })
+        queryClient.invalidateQueries({ queryKey: ['company-profile'] })
+        toast.success('Company logo uploaded successfully!')
+      }
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || err?.message || 'Failed to upload logo.')

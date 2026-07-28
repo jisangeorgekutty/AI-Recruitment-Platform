@@ -11,8 +11,10 @@ export function formatDate(date: string | Date | null | undefined, format: 'shor
   let d: Date
   if (typeof date === 'string') {
     const str = date.trim()
-    // If string has ISO format without 'Z' or timezone offset, parse as UTC by appending 'Z'
-    if (str.includes('T') && !str.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(str)) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+      const [y, m, day] = str.split('-').map(Number)
+      d = new Date(y, m - 1, day)
+    } else if (str.includes('T') && !str.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(str)) {
       d = new Date(str + 'Z')
     } else {
       d = new Date(str)

@@ -35,6 +35,10 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence
         public DbSet<CandidateResumeAnalysis> CandidateResumeAnalyses { get; set; } = null!;
         public DbSet<JobApplicationMatchScore> JobApplicationMatchScores { get; set; } = null!;
         public DbSet<RecruiterParsedResume> RecruiterParsedResumes { get; set; } = null!;
+        public DbSet<InterviewSession> InterviewSessions { get; set; } = null!;
+        public DbSet<InterviewQuestion> InterviewQuestions { get; set; } = null!;
+        public DbSet<InterviewAnswer> InterviewAnswers { get; set; } = null!;
+        public DbSet<InterviewScorecard> InterviewScorecards { get; set; } = null!;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
