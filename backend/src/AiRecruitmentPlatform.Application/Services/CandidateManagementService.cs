@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AiRecruitmentPlatform.Application.DTOs.Candidate;
 using AiRecruitmentPlatform.Application.DTOs.Common;
 using AiRecruitmentPlatform.Application.Interfaces.Repositories;
 using AiRecruitmentPlatform.Application.Interfaces.Services;
 using AiRecruitmentPlatform.Domain.Entities;
+using AutoMapper;
 
 namespace AiRecruitmentPlatform.Application.Services
 {
@@ -18,6 +20,7 @@ namespace AiRecruitmentPlatform.Application.Services
         private readonly ICompanyProfileRepository _companyProfileRepository;
         private readonly IJobApplicationMatchScoreRepository _matchScoreRepository;
         private readonly IIdentityService _identityService;
+        private readonly IMapper _mapper;
 
         public CandidateManagementService(
             IJobApplicationRepository jobApplicationRepository,
@@ -25,7 +28,8 @@ namespace AiRecruitmentPlatform.Application.Services
             ICandidateProfileRepository candidateProfileRepository,
             ICompanyProfileRepository companyProfileRepository,
             IJobApplicationMatchScoreRepository matchScoreRepository,
-            IIdentityService identityService)
+            IIdentityService identityService,
+            IMapper mapper)
         {
             _jobApplicationRepository = jobApplicationRepository;
             _jobPostingRepository = jobPostingRepository;
@@ -33,19 +37,13 @@ namespace AiRecruitmentPlatform.Application.Services
             _companyProfileRepository = companyProfileRepository;
             _matchScoreRepository = matchScoreRepository;
             _identityService = identityService;
+            _mapper = mapper;
         }
 
         public async Task<PaginatedResponse<CandidateListDto>> GetCandidatesAsync(
             long recruiterUserId, string? search, string? stage, string? status, int page, int pageSize)
         {
             var company = await _companyProfileRepository.GetByUserIdAsync(recruiterUserId);
-            var recruiterJobIds = new HashSet<long>();
-
-            if (company != null)
-            {
-                var companyJobs = await _jobPostingRepository.GetJobStatsAsync(company.Id);
-                // Get all job applications for company jobs
-            }
 
             var allApplications = await _jobApplicationRepository.GetAll();
             var candidateDtos = new List<CandidateListDto>();
@@ -119,7 +117,7 @@ namespace AiRecruitmentPlatform.Application.Services
                 }
             }
 
-            var pipelineStages = new[] { "sourced", "applied", "screened", "interview", "technical", "offer", "hired", "rejected" };
+            var pipelineStages = new[] { "sourced", "applied", "screened", "shortlisted", "interview", "technical", "offer", "hired", "rejected" };
             var result = pipelineStages.ToDictionary(s => s, s => new List<CandidateListDto>());
 
             foreach (var item in list)
@@ -146,6 +144,26 @@ namespace AiRecruitmentPlatform.Application.Services
             return await MapToCandidateListDto(application);
         }
 
+        public async Task<List<CandidateListDto>> GetCandidatesByIdsAsync(long recruiterUserId, List<long> applicationIds)
+        {
+            if (applicationIds == null || applicationIds.Count == 0)
+                return new List<CandidateListDto>();
+
+            var applications = await _jobApplicationRepository.GetByIdsWithDetailsAsync(applicationIds);
+            var results = new List<CandidateListDto>();
+
+            foreach (var app in applications)
+            {
+                var dto = await MapToCandidateListDto(app);
+                if (dto != null)
+                {
+                    results.Add(dto);
+                }
+            }
+
+            return results;
+        }
+
         public async Task<bool> UpdateCandidateStageAsync(long recruiterUserId, long applicationId, string stage)
         {
             var application = await _jobApplicationRepository.Get(applicationId);
@@ -159,75 +177,78 @@ namespace AiRecruitmentPlatform.Application.Services
             return true;
         }
 
+        public async Task<bool> BatchUpdateCandidateStagesAsync(long recruiterUserId, List<BatchStageUpdateDto> updates)
+        {
+            if (updates == null || updates.Count == 0) return true;
+
+            foreach (var update in updates)
+            {
+                var application = await _jobApplicationRepository.Get(update.ApplicationId);
+                if (application != null)
+                {
+                    application.Status = MapStageToStatus(update.Stage);
+                    await _jobApplicationRepository.Update(application);
+                }
+            }
+
+            await _jobApplicationRepository.SaveChanges();
+            return true;
+        }
+
         private async Task<CandidateListDto?> MapToCandidateListDto(JobApplication app)
         {
-            var profile = await _candidateProfileRepository.GetFullProfileByIdAsync(app.CandidateProfileId);
+            var profile = app.CandidateProfile ?? await _candidateProfileRepository.GetFullProfileByIdAsync(app.CandidateProfileId);
             if (profile == null) return null;
 
+            var dto = _mapper.Map<CandidateListDto>(app);
+
             var userBasic = await _identityService.GetUserBasicInfoAsync(profile.UserId);
-            var name = userBasic.HasValue ? $"{userBasic.Value.FirstName} {userBasic.Value.LastName}".Trim() : "Applicant";
-            var email = userBasic.HasValue ? userBasic.Value.Email : string.Empty;
-            var phone = userBasic.HasValue ? userBasic.Value.Phone : string.Empty;
-            var avatar = userBasic.HasValue ? userBasic.Value.AvatarUrl : null;
+            dto.Name = userBasic.HasValue ? $"{userBasic.Value.FirstName} {userBasic.Value.LastName}".Trim() : "Applicant";
+            dto.Email = userBasic.HasValue ? userBasic.Value.Email : string.Empty;
+            dto.Phone = userBasic.HasValue ? userBasic.Value.Phone : string.Empty;
+            dto.Avatar = userBasic.HasValue ? userBasic.Value.AvatarUrl : null;
+            dto.Position = profile.CurrentTitle ?? profile.TargetRole ?? "Job Applicant";
+            dto.Location = profile.Location;
+            dto.Stage = MapStatusToStage(app.Status);
+            dto.Status = (app.Status.Equals("Withdrawn", StringComparison.OrdinalIgnoreCase) || app.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase)) ? "inactive" : "active";
 
-            var skills = profile.Skills != null ? profile.Skills.Select(s => s.Name).ToList() : new List<string>();
-
-            var experiences = profile.Experiences != null
-                ? profile.Experiences.Select(e => new CandidateExperienceDto
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Company = e.Company,
-                    Location = e.Location,
-                    StartDate = e.StartDate,
-                    EndDate = e.EndDate,
-                    IsCurrent = e.IsCurrent,
-                    Description = e.Description
-                }).ToList()
-                : new List<CandidateExperienceDto>();
-
-            var educations = profile.Educations != null
-                ? profile.Educations.Select(e => new CandidateEducationDto
-                {
-                    Id = e.Id,
-                    Institution = e.Institution,
-                    Degree = e.Degree,
-                    FieldOfStudy = e.FieldOfStudy,
-                    StartDate = e.StartDate,
-                    EndDate = e.EndDate,
-                    IsCurrent = e.IsCurrent,
-                    Grade = e.Grade,
-                    Description = e.Description
-                }).ToList()
-                : new List<CandidateEducationDto>();
-
-            // Get match score if available
-            var matchScore = await _matchScoreRepository.GetByApplicationIdAsync(app.Id);
-            int? resumeScore = matchScore?.OverallMatchPercentage;
-
-            var stage = MapStatusToStage(app.Status);
-
-            return new CandidateListDto
+            if (profile.Skills != null)
             {
-                Id = app.Id.ToString(),
-                ApplicationId = app.Id,
-                CandidateProfileId = profile.Id,
-                Name = name,
-                Email = email,
-                Phone = phone,
-                Avatar = avatar,
-                Position = profile.CurrentTitle ?? profile.TargetRole ?? "Job Applicant",
-                Location = profile.Location,
-                Stage = stage,
-                Status = app.Status.Equals("Withdrawn", StringComparison.OrdinalIgnoreCase) || app.Status.Equals("Rejected", StringComparison.OrdinalIgnoreCase) ? "inactive" : "active",
-                Skills = skills,
-                Experience = experiences,
-                Education = educations,
-                Rating = 4,
-                ResumeUrl = app.CustomResumeUrl,
-                ResumeScore = resumeScore,
-                AppliedDate = app.AppliedDate
-            };
+                dto.Skills = profile.Skills.Select(s => s.Name).ToList();
+            }
+
+            if (profile.Experiences != null)
+            {
+                dto.Experience = _mapper.Map<List<CandidateExperienceDto>>(profile.Experiences);
+            }
+
+            if (profile.Educations != null)
+            {
+                dto.Education = _mapper.Map<List<CandidateEducationDto>>(profile.Educations);
+            }
+
+            // Populate match score details if present
+            var matchScore = app.MatchScore ?? await _matchScoreRepository.GetByApplicationIdAsync(app.Id);
+            if (matchScore != null)
+            {
+                dto.MatchScoreOverall = matchScore.OverallMatchPercentage;
+                dto.MatchScoreSkill = matchScore.SkillMatchPercentage;
+                dto.MatchScoreExperience = matchScore.ExperienceMatchPercentage;
+                dto.ResumeScore = matchScore.OverallMatchPercentage;
+                dto.RecommendationFit = matchScore.RecommendationFit;
+                dto.CandidateAiSummary = matchScore.CandidateAiSummary;
+
+                try
+                {
+                    if (!string.IsNullOrEmpty(matchScore.MatchedSkillsJson))
+                        dto.MatchedSkills = JsonSerializer.Deserialize<List<string>>(matchScore.MatchedSkillsJson) ?? new List<string>();
+                    if (!string.IsNullOrEmpty(matchScore.MissingSkillsJson))
+                        dto.MissingSkills = JsonSerializer.Deserialize<List<string>>(matchScore.MissingSkillsJson) ?? new List<string>();
+                }
+                catch { }
+            }
+
+            return dto;
         }
 
         private static string MapStatusToStage(string status)
@@ -235,8 +256,9 @@ namespace AiRecruitmentPlatform.Application.Services
             return status?.ToLowerInvariant() switch
             {
                 "applied" => "applied",
-                "screening" or "screened" => "screened",
-                "interviewing" or "interview" => "interview",
+                "screening" or "screened" or "ai screened" => "screened",
+                "shortlisted" => "shortlisted",
+                "interviewing" or "interview" or "interview scheduled" => "interview",
                 "technical" => "technical",
                 "offered" or "offer" => "offer",
                 "hired" => "hired",
@@ -250,10 +272,11 @@ namespace AiRecruitmentPlatform.Application.Services
             return stage?.ToLowerInvariant() switch
             {
                 "applied" => "Applied",
-                "screened" => "Screening",
-                "interview" => "Interviewing",
+                "screened" or "ai screened" or "ai_screened" => "Screening",
+                "shortlisted" => "Shortlisted",
+                "interview" or "interview scheduled" or "interview_scheduled" => "Interviewing",
                 "technical" => "Interviewing",
-                "offer" => "Offered",
+                "offer" or "offered" => "Offered",
                 "hired" => "Hired",
                 "rejected" => "Rejected",
                 _ => "Applied"

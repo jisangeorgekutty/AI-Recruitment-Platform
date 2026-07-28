@@ -26,9 +26,24 @@ namespace AiRecruitmentPlatform.Infrastructure.Repositories
                     .ThenInclude(j => j.CompanyProfile)
                 .Include(a => a.CandidateProfile)
                 .Include(a => a.CandidateResume)
+                .Include(a => a.MatchScore)
                 .Include(a => a.Answers)
                     .ThenInclude(ans => ans.JobScreeningQuestion)
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+        }
+
+        public async Task<IEnumerable<JobApplication>> GetByIdsWithDetailsAsync(List<long> ids)
+        {
+            return await _context.JobApplications
+                .Include(a => a.JobPosting)
+                    .ThenInclude(j => j.CompanyProfile)
+                .Include(a => a.CandidateProfile)
+                .Include(a => a.CandidateResume)
+                .Include(a => a.MatchScore)
+                .Include(a => a.Answers)
+                    .ThenInclude(ans => ans.JobScreeningQuestion)
+                .Where(a => ids.Contains(a.Id) && !a.IsDeleted)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<JobApplication>> GetCandidateApplicationsAsync(long candidateProfileId)
@@ -37,6 +52,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Repositories
                 .Include(a => a.JobPosting)
                     .ThenInclude(j => j.CompanyProfile)
                 .Include(a => a.CandidateResume)
+                .Include(a => a.MatchScore)
                 .Include(a => a.Answers)
                     .ThenInclude(ans => ans.JobScreeningQuestion)
                 .Where(a => a.CandidateProfileId == candidateProfileId && !a.IsDeleted)
@@ -47,8 +63,10 @@ namespace AiRecruitmentPlatform.Infrastructure.Repositories
         public async Task<IEnumerable<JobApplication>> GetJobApplicationsAsync(long jobPostingId)
         {
             return await _context.JobApplications
+                .Include(a => a.JobPosting)
                 .Include(a => a.CandidateProfile)
                 .Include(a => a.CandidateResume)
+                .Include(a => a.MatchScore)
                 .Include(a => a.Answers)
                     .ThenInclude(ans => ans.JobScreeningQuestion)
                 .Where(a => a.JobPostingId == jobPostingId && !a.IsDeleted)

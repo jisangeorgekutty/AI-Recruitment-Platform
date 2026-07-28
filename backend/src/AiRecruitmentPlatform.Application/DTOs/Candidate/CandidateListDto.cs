@@ -22,6 +22,17 @@ namespace AiRecruitmentPlatform.Application.DTOs.Candidate
         public int Rating { get; set; } = 4;
         public string? ResumeUrl { get; set; }
         public int? ResumeScore { get; set; }
+        public long JobPostingId { get; set; }
+        public string? JobTitle { get; set; }
+        public int? MatchScoreOverall { get; set; }
+        public int? MatchScoreSkill { get; set; }
+        public int? MatchScoreExperience { get; set; }
+        public string? RecommendationFit { get; set; }
+        public List<string> MatchedSkills { get; set; } = new List<string>();
+        public List<string> MissingSkills { get; set; } = new List<string>();
+        public string? CandidateAiSummary { get; set; }
+        public int? InterviewOverallScore { get; set; }
+        public string? InterviewRecommendation { get; set; }
         public DateTime AppliedDate { get; set; } = DateTime.UtcNow;
     }
 }

@@ -107,16 +107,26 @@ export interface Candidate {
   appliedDate: string
   source: string
   notes?: string
-  jobId: string
+  applicationId?: number
+  jobPostingId?: number
   jobTitle?: string
   rating: number
   tags: string[]
+  matchScoreOverall?: number
+  matchScoreSkill?: number
+  matchScoreExperience?: number
+  recommendationFit?: string
+  matchedSkills?: string[]
+  missingSkills?: string[]
+  candidateAiSummary?: string
+  interviewOverallScore?: number
+  interviewRecommendation?: string
   createdAt: string
   updatedAt: string
 }
 
-export type CandidateStage = 'sourced' | 'applied' | 'screened' | 'interview' | 'technical' | 'offer' | 'hired' | 'rejected'
-export type CandidateStatus = 'active' | 'passive' | 'placed' | 'archived'
+export type CandidateStage = 'sourced' | 'applied' | 'screened' | 'shortlisted' | 'interview' | 'technical' | 'offer' | 'hired' | 'rejected'
+export type CandidateStatus = 'active' | 'passive' | 'placed' | 'archived' | 'inactive'
 
 export interface Experience {
   id: string

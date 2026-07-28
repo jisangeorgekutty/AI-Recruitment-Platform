@@ -94,5 +94,35 @@ namespace AiRecruitmentPlatform.Api.Controllers
                 return BadRequest(ApiResponse<bool>.FailureResult(ex.Message));
             }
         }
+
+        [HttpPatch("batch-stage")]
+        public async Task<ActionResult<ApiResponse<bool>>> BatchUpdateStage([FromBody] BatchStageUpdateRequest request)
+        {
+            try
+            {
+                var recruiterUserId = User.GetCurrentUserId();
+                var success = await _candidateService.BatchUpdateCandidateStagesAsync(recruiterUserId, request.Updates);
+                return Ok(ApiResponse<bool>.SuccessResult(success, "Candidate stages updated successfully."));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<bool>.FailureResult(ex.Message));
+            }
+        }
+
+        [HttpPost("compare")]
+        public async Task<ActionResult<ApiResponse<List<CandidateListDto>>>> CompareCandidates([FromBody] CandidateComparisonRequest request)
+        {
+            try
+            {
+                var recruiterUserId = User.GetCurrentUserId();
+                var results = await _candidateService.GetCandidatesByIdsAsync(recruiterUserId, request.ApplicationIds);
+                return Ok(ApiResponse<List<CandidateListDto>>.SuccessResult(results));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ApiResponse<List<CandidateListDto>>.FailureResult(ex.Message));
+            }
+        }
     }
 }

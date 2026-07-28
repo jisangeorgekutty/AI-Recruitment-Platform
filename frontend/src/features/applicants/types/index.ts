@@ -5,21 +5,23 @@ export type { Candidate, CandidateStage, CandidateStatus }
 export const STAGE_LABELS: Record<CandidateStage, string> = {
   sourced: 'Sourced',
   applied: 'Applied',
-  screened: 'Screened',
-  interview: 'Interview',
+  screened: 'AI Screened',
+  shortlisted: 'Shortlisted',
+  interview: 'Interview Scheduled',
   technical: 'Technical',
-  offer: 'Offer',
+  offer: 'Offered',
   hired: 'Hired',
   rejected: 'Rejected',
 }
 
 export const STAGE_COLORS: Record<CandidateStage, string> = {
   sourced: '#818cf8',
-  applied: '#a78bfa',
-  screened: '#c084fc',
-  interview: '#e879f9',
-  technical: '#f472b6',
-  offer: '#34d399',
-  hired: '#22d3ee',
-  rejected: '#fb7185',
+  applied: '#6366f1',
+  screened: '#8b5cf6',
+  shortlisted: '#a855f7',
+  interview: '#ec4899',
+  technical: '#f43f5e',
+  offer: '#10b981',
+  hired: '#06b6d4',
+  rejected: '#f43f5e',
 }

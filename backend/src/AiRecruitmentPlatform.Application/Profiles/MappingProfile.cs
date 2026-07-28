@@ -73,6 +73,21 @@ namespace AiRecruitmentPlatform.Application.Profiles
             CreateMap<CandidateResume, CandidateResumeDto>().ReverseMap();
             CreateMap<CandidateSavedJob, DTOs.Job.CandidateSavedJobDto>().ReverseMap();
             CreateMap<CandidateResumeAnalysis, CandidateResumeDto>().ReverseMap();
+
+            CreateMap<JobApplication, CandidateListDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
+                .ForMember(dest => dest.ApplicationId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CandidateProfileId, opt => opt.MapFrom(src => src.CandidateProfileId))
+                .ForMember(dest => dest.JobPostingId, opt => opt.MapFrom(src => src.JobPostingId))
+                .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.JobPosting != null ? src.JobPosting.Title : null))
+                .ForMember(dest => dest.ResumeUrl, opt => opt.MapFrom(src => src.CustomResumeUrl ?? (src.CandidateResume != null ? src.CandidateResume.FileUrl : null)))
+                .ForMember(dest => dest.AppliedDate, opt => opt.MapFrom(src => src.AppliedDate))
+                .ForMember(dest => dest.MatchScoreOverall, opt => opt.MapFrom(src => src.MatchScore != null ? (int?)src.MatchScore.OverallMatchPercentage : null))
+                .ForMember(dest => dest.MatchScoreSkill, opt => opt.MapFrom(src => src.MatchScore != null ? (int?)src.MatchScore.SkillMatchPercentage : null))
+                .ForMember(dest => dest.MatchScoreExperience, opt => opt.MapFrom(src => src.MatchScore != null ? (int?)src.MatchScore.ExperienceMatchPercentage : null))
+                .ForMember(dest => dest.ResumeScore, opt => opt.MapFrom(src => src.MatchScore != null ? (int?)src.MatchScore.OverallMatchPercentage : null))
+                .ForMember(dest => dest.RecommendationFit, opt => opt.MapFrom(src => src.MatchScore != null ? src.MatchScore.RecommendationFit : null))
+                .ForMember(dest => dest.CandidateAiSummary, opt => opt.MapFrom(src => src.MatchScore != null ? src.MatchScore.CandidateAiSummary : null));
         }
     }
 }

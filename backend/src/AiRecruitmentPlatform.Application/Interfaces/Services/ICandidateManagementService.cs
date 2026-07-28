@@ -11,5 +11,7 @@ namespace AiRecruitmentPlatform.Application.Interfaces.Services
         Task<Dictionary<string, List<CandidateListDto>>> GetCandidatePipelineAsync(long recruiterUserId, long? jobId);
         Task<CandidateListDto?> GetCandidateByIdAsync(long recruiterUserId, long applicationId);
         Task<bool> UpdateCandidateStageAsync(long recruiterUserId, long applicationId, string stage);
+        Task<bool> BatchUpdateCandidateStagesAsync(long recruiterUserId, List<BatchStageUpdateDto> updates);
+        Task<List<CandidateListDto>> GetCandidatesByIdsAsync(long recruiterUserId, List<long> applicationIds);
     }
 }

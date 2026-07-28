@@ -1,47 +1,174 @@
-import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft } from 'lucide-react'
+import toast from 'react-hot-toast'
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import { ArrowLeft, Users, Filter, X, ArrowRight } from 'lucide-react'
 import { PageHeader } from '@/components/page-header'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { ErrorState } from '@/components/error-state'
 import { candidateService } from '@/services/candidate.service'
-import { STAGE_LABELS, STAGE_COLORS } from '@/features/applicants/types'
-import type { CandidateStage, Candidate } from '@/types'
-import { ScrollArea } from '@/components/ui/scroll-area'
-
-import { Sparkles } from 'lucide-react'
+import { jobService } from '@/services/job.service'
+import { PipelineColumn } from '@/features/applicants/components/pipeline-column'
+import { PipelineCandidateCard } from '@/features/applicants/components/pipeline-candidate-card'
 import { CandidateMatchModal } from '@/features/applicants/components/candidate-match-modal'
-import { useJobMatchStore } from '@/store/job-match-store'
+import { useCandidateStore } from '@/store/candidate-store'
+import type { CandidateStage, Candidate } from '@/types'
 
 const PIPELINE_STAGES: CandidateStage[] = [
-  'sourced', 'applied', 'screened', 'interview', 'technical', 'offer', 'hired',
+  'applied',
+  'screened',
+  'shortlisted',
+  'interview',
+  'offer',
+  'rejected',
 ]
 
 export default function CandidatePipelinePage() {
   const navigate = useNavigate()
-  const { openMatchModal } = useJobMatchStore()
+  const queryClient = useQueryClient()
+  const { comparisonCandidates, clearComparison, selectedJobId, setSelectedJobId } = useCandidateStore()
 
-  const { data: pipeline, isLoading, error, refetch } = useQuery({
-    queryKey: ['candidate-pipeline'],
-    queryFn: () => candidateService.getPipeline(),
+  const [activeCandidate, setActiveCandidate] = useState<Candidate | null>(null)
+  const [localPipeline, setLocalPipeline] = useState<Record<string, Candidate[]>>({})
+
+  // Sensors for DnD (prevent accidental drags when clicking buttons)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    })
+  )
+
+  // Fetch jobs for dropdown filter
+  const { data: jobsData } = useQuery({
+    queryKey: ['jobs-dropdown'],
+    queryFn: () => jobService.list({ pageSize: 100 }),
   })
+  const jobs = jobsData?.items ?? jobsData?.data ?? []
+
+  // Fetch pipeline data
+  const { data: pipelineData, isLoading, error, refetch } = useQuery({
+    queryKey: ['candidate-pipeline', selectedJobId],
+    queryFn: () => candidateService.getPipeline(selectedJobId || undefined),
+  })
+
+  // Sync server data to local pipeline state
+  useEffect(() => {
+    if (pipelineData) {
+      setLocalPipeline(pipelineData)
+    }
+  }, [pipelineData])
+
+  // Update candidate stage mutation with optimistic rollback
+  const updateStageMutation = useMutation({
+    mutationFn: ({ id, stage }: { id: string; stage: CandidateStage }) => candidateService.updateStage(id, stage),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['candidate-pipeline'] })
+      queryClient.invalidateQueries({ queryKey: ['candidates'] })
+      toast.success('Candidate stage updated!')
+    },
+    onError: (_err, _vars, context: any) => {
+      if (context?.previousPipeline) {
+        setLocalPipeline(context.previousPipeline)
+      }
+      toast.error('Failed to update candidate stage.')
+    },
+  })
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const candidate = event.active.data.current?.candidate as Candidate
+    if (candidate) {
+      setActiveCandidate(candidate)
+    }
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveCandidate(null)
+
+    if (!over) return
+
+    const candidateId = String(active.id)
+    const targetStage = String(over.id) as CandidateStage
+
+    // Find source stage
+    let sourceStage: string | null = null
+    let candidateObj: Candidate | null = null
+
+    for (const [stg, list] of Object.entries(localPipeline)) {
+      const found = list.find((c) => c.id === candidateId)
+      if (found) {
+        sourceStage = stg
+        candidateObj = found
+        break
+      }
+    }
+
+    if (!sourceStage || !candidateObj || sourceStage === targetStage) return
+
+    // Optimistic UI update
+    const previousPipeline = { ...localPipeline }
+    setLocalPipeline((prev) => {
+      const updated = { ...prev }
+      const sourceList = (updated[sourceStage!] ?? []).filter((c) => c.id !== candidateId)
+      const updatedCandidate = { ...candidateObj!, stage: targetStage }
+      const targetList = [...(updated[targetStage] ?? []), updatedCandidate]
+      return {
+        ...updated,
+        [sourceStage!]: sourceList,
+        [targetStage]: targetList,
+      }
+    })
+
+    // Execute server update
+    updateStageMutation.mutate(
+      { id: candidateId, stage: targetStage },
+      { context: { previousPipeline } } as any
+    )
+  }
 
   if (error) return <ErrorState onRetry={refetch} />
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
       <PageHeader
-        title="Pipeline"
+        title="Interactive Hiring Pipeline"
         description="Drag and drop candidates through hiring stages"
         actions={
-          <Button variant="outline" onClick={() => navigate('/recruiter/candidates')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            List View
-          </Button>
+          <div className="flex items-center gap-3">
+            {/* Job Filter Selector Dropdown */}
+            <div className="flex items-center gap-1.5 bg-card border rounded-lg px-2.5 py-1.5 shadow-sm text-sm">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <select
+                value={selectedJobId || ''}
+                onChange={(e) => setSelectedJobId(e.target.value || null)}
+                className="bg-card text-foreground text-xs font-medium focus:outline-none cursor-pointer max-w-[200px] truncate"
+              >
+                <option value="" className="bg-background text-foreground dark:bg-slate-900 dark:text-slate-100 text-slate-900">
+                  All Job Postings
+                </option>
+                {jobs.map((job: any) => (
+                  <option key={job.id} value={String(job.id)} className="bg-background text-foreground dark:bg-slate-900 dark:text-slate-100 text-slate-900">
+                    {job.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <Button variant="outline" size="sm" onClick={() => navigate('/recruiter/candidates')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              List View
+            </Button>
+          </div>
         }
       />
 
@@ -54,71 +181,55 @@ export default function CandidatePipelinePage() {
           ))}
         </div>
       ) : (
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {PIPELINE_STAGES.map((stage) => {
-            const candidates = (pipeline?.[stage] ?? []) as Candidate[]
-            return (
-              <div key={stage} className="min-w-[280px] flex-1">
-                <Card className="h-full">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: STAGE_COLORS[stage] }} />
-                        <CardTitle className="text-sm">{STAGE_LABELS[stage]}</CardTitle>
-                      </div>
-                      <Badge variant="secondary">{candidates.length}</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-3">
-                    <ScrollArea className="h-[500px]">
-                      <div className="space-y-2">
-                        {candidates.map((candidate) => (
-                          <div
-                            key={candidate.id}
-                            onClick={() => navigate(`/recruiter/candidates/${candidate.id}`)}
-                            className="cursor-pointer rounded-xl border p-3 transition-all hover:shadow-sm hover:border-primary/20 relative group"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <Avatar name={candidate.name} src={candidate.avatar} size="sm" />
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-sm font-medium truncate">{candidate.name}</p>
-                                  <p className="text-xs text-muted-foreground truncate">{candidate.position}</p>
-                                </div>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-indigo-500 hover:bg-indigo-500/15"
-                                title="AI Match Score Analysis"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  openMatchModal(Number(candidate.id) || 1)
-                                }}
-                              >
-                                <Sparkles className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                            <div className="mt-2 flex flex-wrap gap-1">
-                              {candidate.skills.slice(0, 2).map((skill) => (
-                                <Badge key={skill} variant="secondary" className="text-[10px]">
-                                  {skill}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                        {candidates.length === 0 && (
-                          <p className="py-8 text-center text-xs text-muted-foreground">No candidates</p>
-                        )}
-                      </div>
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-              </div>
-            )
-          })}
-        </div>
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <div className="flex gap-4 overflow-x-auto pb-6">
+            {PIPELINE_STAGES.map((stage) => (
+              <PipelineColumn
+                key={stage}
+                stage={stage}
+                candidates={(localPipeline[stage] ?? []) as Candidate[]}
+              />
+            ))}
+          </div>
+
+          <DragOverlay>
+            {activeCandidate ? <PipelineCandidateCard candidate={activeCandidate} /> : null}
+          </DragOverlay>
+        </DndContext>
+      )}
+
+      {/* Floating Comparison Action Bar */}
+      {comparisonCandidates.length > 0 && (
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 50, opacity: 0 }}
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-primary text-primary-foreground px-6 py-3 rounded-full shadow-2xl border"
+        >
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Users className="h-4 w-4" />
+            <span>{comparisonCandidates.length} Selected for Comparison</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="rounded-full font-bold gap-1 text-xs"
+              onClick={() => navigate(`/recruiter/candidates/compare`)}
+            >
+              Compare Side-by-Side
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-7 w-7 rounded-full text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+              onClick={clearComparison}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </motion.div>
       )}
 
       <CandidateMatchModal />

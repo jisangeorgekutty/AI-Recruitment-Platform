@@ -25,6 +25,7 @@ const JobDetailPage = lazy(() => import('@/features/jobs/pages/job-detail-page')
 const CandidatesListPage = lazy(() => import('@/features/applicants/pages/candidates-list-page'))
 const RecruiterCandidateProfilePage = lazy(() => import('@/features/applicants/pages/candidate-profile-page'))
 const CandidatePipelinePage = lazy(() => import('@/features/applicants/pages/candidate-pipeline-page'))
+const CandidateComparisonPage = lazy(() => import('@/features/applicants/pages/candidate-comparison-page'))
 const InterviewsPage = lazy(() => import('@/features/interviews/pages/interviews-page'))
 const ResumeParserPage = lazy(() => import('@/features/resume/pages/resume-parser-page'))
 const AnalyticsPage = lazy(() => import('@/features/analytics/pages/analytics-page'))
@@ -144,6 +145,10 @@ const routes: RouteObject[] = [
       {
         path: 'candidates/pipeline',
         element: <ErrorBoundary><SuspenseWrapper><CandidatePipelinePage /></SuspenseWrapper></ErrorBoundary>,
+      },
+      {
+        path: 'candidates/compare',
+        element: <ErrorBoundary><SuspenseWrapper><CandidateComparisonPage /></SuspenseWrapper></ErrorBoundary>,
       },
       {
         path: 'candidates/:id',

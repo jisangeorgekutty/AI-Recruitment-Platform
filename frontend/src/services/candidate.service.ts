@@ -120,6 +120,16 @@ export const candidateService = {
     return response.data.data
   },
 
+  async batchUpdateStages(updates: { applicationId: number; stage: string }[]) {
+    const response = await api.patch<ApiResponse<boolean>>('/candidates/batch-stage', { updates })
+    return response.data.data
+  },
+
+  async compareCandidates(applicationIds: number[]) {
+    const response = await api.post<ApiResponse<Candidate[]>>('/candidates/compare', { applicationIds })
+    return response.data.data
+  },
+
   async addNote(id: string, note: string) {
     const response = await api.post<ApiResponse<Candidate>>(`/candidates/${id}/notes`, { note })
     return response.data.data

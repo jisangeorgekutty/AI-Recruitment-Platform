@@ -8,8 +8,8 @@ interface CandidateState {
   pageSize: number
   filters: TableFilters
   selectedCandidates: string[]
-  pipeline: Record<string, Candidate[]>
-  isLoading: boolean
+  comparisonCandidates: string[]
+  selectedJobId: string | null
 
   setCandidates: (candidates: Candidate[]) => void
   setTotal: (total: number) => void
@@ -23,6 +23,9 @@ interface CandidateState {
   setPipeline: (pipeline: Record<string, Candidate[]>) => void
   updateCandidate: (id: string, data: Partial<Candidate>) => void
   removeCandidate: (id: string) => void
+  toggleComparisonSelection: (id: string) => void
+  clearComparison: () => void
+  setSelectedJobId: (jobId: string | null) => void
 }
 
 const defaultFilters: TableFilters = {
@@ -40,6 +43,8 @@ export const useCandidateStore = create<CandidateState>()((set) => ({
   pageSize: 10,
   filters: defaultFilters,
   selectedCandidates: [],
+  comparisonCandidates: [],
+  selectedJobId: null,
   pipeline: {},
   isLoading: false,
 
@@ -65,6 +70,22 @@ export const useCandidateStore = create<CandidateState>()((set) => ({
         : [...state.selectedCandidates, id],
     })),
 
+  toggleComparisonSelection: (id) =>
+    set((state) => {
+      const exists = state.comparisonCandidates.includes(id)
+      if (exists) {
+        return { comparisonCandidates: state.comparisonCandidates.filter((cId) => cId !== id) }
+      }
+      if (state.comparisonCandidates.length >= 4) {
+        return state // Max 4 candidates
+      }
+      return { comparisonCandidates: [...state.comparisonCandidates, id] }
+    }),
+
+  clearComparison: () => set({ comparisonCandidates: [] }),
+
+  setSelectedJobId: (jobId) => set({ selectedJobId: jobId }),
+
   setLoading: (isLoading) => set({ isLoading }),
 
   setPipeline: (pipeline) => set({ pipeline }),
@@ -79,5 +100,6 @@ export const useCandidateStore = create<CandidateState>()((set) => ({
       candidates: state.candidates.filter((c) => c.id !== id),
       total: state.total - 1,
       selectedCandidates: state.selectedCandidates.filter((cId) => cId !== id),
+      comparisonCandidates: state.comparisonCandidates.filter((cId) => cId !== id),
     })),
 }))
