@@ -40,6 +40,9 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence
         public DbSet<InterviewAnswer> InterviewAnswers { get; set; } = null!;
         public DbSet<InterviewScorecard> InterviewScorecards { get; set; } = null!;
         public DbSet<JobOffer> JobOffers { get; set; } = null!;
+        public DbSet<Notification> Notifications { get; set; } = null!;
+        public DbSet<AuditLog> AuditLogs { get; set; } = null!;
+        public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; } = null!;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

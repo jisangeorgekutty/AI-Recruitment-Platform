@@ -60,20 +60,24 @@ export function RecentActivity({ activities, isLoading }: RecentActivityProps) {
   return (
     <ScrollArea className="h-[400px]">
       <div className="space-y-4">
-        {activities.map((activity) => (
-          <div key={activity.id} className="flex items-start gap-3">
-            <Avatar name={activity.user.name} src={activity.user.avatar} size="sm" />
-            <div className="flex-1 space-y-1">
-              <div className="flex items-center gap-2">
-                <Badge variant={activityVariants[activity.type] || 'default'}>
-                  {activityLabels[activity.type] || activity.type}
-                </Badge>
+        {activities.map((activity) => {
+          const userName = activity.user?.name || activity.userName || 'System'
+          const userAvatar = activity.user?.avatar || activity.userAvatar
+          return (
+            <div key={activity.id} className="flex items-start gap-3">
+              <Avatar name={userName} src={userAvatar} size="sm" />
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center gap-2">
+                  <Badge variant={activityVariants[activity.type] || 'default'}>
+                    {activityLabels[activity.type] || activity.type}
+                  </Badge>
+                </div>
+                <p className="text-sm">{activity.title}</p>
+                <p className="text-xs text-muted-foreground">{formatDate(activity.timestamp, 'relative')}</p>
               </div>
-              <p className="text-sm">{activity.title}</p>
-              <p className="text-xs text-muted-foreground">{formatDate(activity.timestamp, 'relative')}</p>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </ScrollArea>
   )

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AiRecruitmentPlatform.Application.DTOs.Job;
+using AiRecruitmentPlatform.Application.DTOs.Notification;
 using AiRecruitmentPlatform.Application.Interfaces.Repositories;
 using AiRecruitmentPlatform.Application.Interfaces.Services;
 using AiRecruitmentPlatform.Domain.Entities;
@@ -15,6 +16,9 @@ namespace AiRecruitmentPlatform.Application.Services
         private readonly IJobApplicationRepository _jobApplicationRepository;
         private readonly IJobPostingRepository _jobPostingRepository;
         private readonly ICandidateProfileRepository _candidateProfileRepository;
+        private readonly ICompanyProfileRepository _companyProfileRepository;
+        private readonly IIdentityService _identityService;
+        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
 
         public JobOfferService(
@@ -22,12 +26,18 @@ namespace AiRecruitmentPlatform.Application.Services
             IJobApplicationRepository jobApplicationRepository,
             IJobPostingRepository jobPostingRepository,
             ICandidateProfileRepository candidateProfileRepository,
+            ICompanyProfileRepository companyProfileRepository,
+            IIdentityService identityService,
+            INotificationService notificationService,
             IMapper mapper)
         {
             _jobOfferRepository = jobOfferRepository;
             _jobApplicationRepository = jobApplicationRepository;
             _jobPostingRepository = jobPostingRepository;
             _candidateProfileRepository = candidateProfileRepository;
+            _companyProfileRepository = companyProfileRepository;
+            _identityService = identityService;
+            _notificationService = notificationService;
             _mapper = mapper;
         }
 
@@ -82,6 +92,26 @@ namespace AiRecruitmentPlatform.Application.Services
             await _jobApplicationRepository.Update(application);
             await _jobOfferRepository.SaveChanges();
 
+            // Trigger Notification to Candidate
+            try
+            {
+                var candidateProfile = await _candidateProfileRepository.Get(application.CandidateProfileId);
+                if (candidateProfile != null && candidateProfile.UserId > 0)
+                {
+                    var jobPosting = await _jobPostingRepository.Get(application.JobPostingId);
+                    var jobTitle = jobPosting?.Title ?? "Job";
+                    await _notificationService.CreateAndSendNotificationAsync(new CreateNotificationDto
+                    {
+                        UserId = candidateProfile.UserId,
+                        Title = "Job Offer Received",
+                        Message = $"You have received a job offer for {jobTitle}.",
+                        Type = "JobOffer",
+                        LinkUrl = "/candidate/offers"
+                    });
+                }
+            }
+            catch { }
+
             var updatedOffer = await _jobOfferRepository.GetByApplicationIdAsync(dto.ApplicationId);
             return _mapper.Map<JobOfferDto>(updatedOffer!);
         }
@@ -122,6 +152,43 @@ namespace AiRecruitmentPlatform.Application.Services
             await _jobApplicationRepository.Update(offer.JobApplication);
 
             await _jobOfferRepository.SaveChanges();
+
+            // Trigger Notification to Recruiter
+            try
+            {
+                var userBasic = await _identityService.GetUserBasicInfoAsync(profile.UserId);
+                var candidateName = userBasic.HasValue ? $"{userBasic.Value.FirstName} {userBasic.Value.LastName}".Trim() : "A candidate";
+                if (string.IsNullOrEmpty(candidateName)) candidateName = "A candidate";
+
+                var jobPosting = await _jobPostingRepository.Get(offer.JobApplication.JobPostingId);
+                if (jobPosting != null)
+                {
+                    long targetUserId = 0;
+                    if (long.TryParse(jobPosting.CreatedBy, out var parsedId) && parsedId > 0)
+                    {
+                        targetUserId = parsedId;
+                    }
+                    else
+                    {
+                        var company = await _companyProfileRepository.Get(jobPosting.CompanyProfileId);
+                        if (company != null && company.UserId > 0) targetUserId = company.UserId;
+                    }
+
+                    if (targetUserId > 0)
+                    {
+                        await _notificationService.CreateAndSendNotificationAsync(new CreateNotificationDto
+                        {
+                            UserId = targetUserId,
+                            Title = $"Job Offer {(isAccepting ? "Accepted" : "Declined")}",
+                            Message = $"{candidateName} has {(isAccepting ? "accepted" : "declined")} the job offer for {jobPosting.Title}.",
+                            Type = "JobOffer",
+                            LinkUrl = "/recruiter/candidates"
+                        });
+                    }
+                }
+            }
+            catch { }
+
             return true;
         }
     }

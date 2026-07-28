@@ -110,6 +110,17 @@ namespace AiRecruitmentPlatform.Infrastructure
             services.AddScoped<IJobOfferRepository, JobOfferRepository>();
             services.AddScoped<IJobOfferService, JobOfferService>();
 
+            // Phase 7 Registrations
+            services.AddSignalR();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+            services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IRecruitmentAnalyticsService, RecruitmentAnalyticsService>();
+            services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IAuditLogService, AuditLogService>();
+            services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
+
             return services;
         }
     }

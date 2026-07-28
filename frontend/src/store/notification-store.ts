@@ -43,22 +43,22 @@ export const useNotificationStore = create<NotificationState>()((set) => ({
   markAsRead: (id) =>
     set((state) => ({
       notifications: state.notifications.map((n) =>
-        n.id === id ? { ...n, read: true } : n,
+        n.id === id ? { ...n, read: true, isRead: true } : n,
       ),
       unreadCount: Math.max(0, state.unreadCount - 1),
     })),
 
   markAllAsRead: () =>
     set((state) => ({
-      notifications: state.notifications.map((n) => ({ ...n, read: true })),
+      notifications: state.notifications.map((n) => ({ ...n, read: true, isRead: true })),
       unreadCount: 0,
     })),
 
   removeNotification: (id) =>
     set((state) => ({
       notifications: state.notifications.filter((n) => n.id !== id),
-      unreadCount: state.notifications.find((n) => n.id === id && !n.read)
-        ? state.unreadCount - 1
+      unreadCount: state.notifications.find((n) => n.id === id && !(n.read || n.isRead))
+        ? Math.max(0, state.unreadCount - 1)
         : state.unreadCount,
     })),
 
@@ -73,4 +73,3 @@ export const useNotificationStore = create<NotificationState>()((set) => ({
       preferences: state.preferences ? { ...state.preferences, ...data } : (data as RecruiterNotificationPreferenceState),
     })),
 }))
-

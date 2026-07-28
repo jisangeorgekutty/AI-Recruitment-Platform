@@ -3,8 +3,31 @@ import type { ApiResponse, Notification } from '@/types'
 
 export const notificationService = {
   async list(page = 1, pageSize = 20) {
-    const response = await api.get<ApiResponse<{ data: Notification[]; total: number; unreadCount: number }>>('/notifications', { params: { page, pageSize } })
-    return response.data.data
+    const response = await api.get<ApiResponse<{ data: any[]; total: number; unreadCount: number }>>('/notifications', { params: { page, pageSize } })
+    const resData = response.data.data
+    if (resData && Array.isArray(resData.data)) {
+      const normalizedData: Notification[] = resData.data.map((n: any) => {
+        const readBool = Boolean(n.isRead ?? n.read)
+        return {
+          id: String(n.id),
+          type: n.type || 'system',
+          title: n.title || '',
+          message: n.message || '',
+          read: readBool,
+          isRead: readBool,
+          link: n.linkUrl || n.link || '',
+          linkUrl: n.linkUrl || n.link || '',
+          createdAt: n.createdOn || n.createdAt || new Date().toISOString(),
+          createdOn: n.createdOn || n.createdAt || new Date().toISOString(),
+        }
+      })
+      return {
+        data: normalizedData,
+        total: resData.total ?? normalizedData.length,
+        unreadCount: resData.unreadCount ?? normalizedData.filter(n => !n.read).length,
+      }
+    }
+    return resData
   },
 
   async markAsRead(id: string) {

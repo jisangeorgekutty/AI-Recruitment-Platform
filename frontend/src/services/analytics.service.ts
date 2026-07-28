@@ -1,5 +1,6 @@
 import api from './api'
 import type { ApiResponse, DashboardStats, Activity } from '@/types'
+export type { DashboardStats, Activity }
 
 export interface HiringFunnel {
   stage: string
@@ -58,7 +59,7 @@ const MOCK_RECENT_ACTIVITIES: Activity[] = [
   {
     id: 'act-3',
     type: 'offer_accepted',
-    title: 'Offer Accepted! 🎉',
+    title: 'Offer Accepted',
     description: 'Michael Scott accepted offer for Backend Engineering Lead',
     user: { name: 'Michael Scott', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150' },
     timestamp: '2 hours ago',
@@ -129,7 +130,12 @@ export const analyticsService = {
   async getRecentActivity(limit = 10) {
     try {
       const response = await api.get<ApiResponse<Activity[]>>('/analytics/recent-activity', { params: { limit } })
-      if (response.data?.data) return response.data.data
+      if (response.data?.data) {
+        return response.data.data.map((item) => ({
+          ...item,
+          user: item.user || { name: item.userName || 'System', avatar: item.userAvatar },
+        }))
+      }
     } catch {
       // Fallback
     }

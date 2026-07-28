@@ -1,15 +1,6 @@
-import { UserPlus, Calendar, Award, Bell, Mail, Clock, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { cn, formatDate } from '@/lib/utils'
 import type { Notification } from '@/types'
-
-const iconMap = {
-  application: UserPlus,
-  interview: Calendar,
-  offer: Award,
-  system: Bell,
-  message: Mail,
-  reminder: Clock,
-}
 
 interface NotificationItemProps {
   notification: Notification
@@ -18,32 +9,32 @@ interface NotificationItemProps {
 }
 
 export function NotificationItem({ notification, onMarkRead, onDelete }: NotificationItemProps) {
-  const Icon = iconMap[notification.type]
+  const isRead = notification.read ?? notification.isRead
+  const createdAt = notification.createdAt || notification.createdOn || new Date().toISOString()
 
   return (
     <div
       className={cn(
-        'flex items-start gap-3 rounded-xl p-3 transition-colors',
-        !notification.read ? 'bg-primary/5' : 'hover:bg-muted/50',
+        'group flex items-start justify-between gap-3 rounded-xl p-4 transition-colors border',
+        !isRead ? 'bg-primary/5 border-primary/20' : 'bg-card border-border hover:bg-muted/50',
       )}
-      onClick={() => !notification.read && onMarkRead(notification.id)}
+      onClick={() => !isRead && onMarkRead(notification.id)}
     >
-      <div className={cn(
-        'rounded-lg p-2',
-        notification.read ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary',
-      )}>
-        <Icon className="h-4 w-4" />
-      </div>
       <div className="flex-1 min-w-0">
-        <p className={cn('text-sm', !notification.read && 'font-semibold')}>{notification.title}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">{notification.message}</p>
-        <p className="text-xs text-muted-foreground mt-1">{formatDate(notification.createdAt, 'relative')}</p>
+        <div className="flex items-center gap-2">
+          <p className={cn('text-sm', !isRead ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground')}>
+            {notification.title}
+          </p>
+          {!isRead && <span className="h-2 w-2 shrink-0 rounded-full bg-primary" />}
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">{notification.message}</p>
+        <p className="text-[11px] text-muted-foreground/70 mt-1.5">{formatDate(createdAt, 'relative')}</p>
       </div>
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(notification.id) }}
-        className="shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+        className="shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
       >
-        <X className="h-3 w-3" />
+        <X className="h-3.5 w-3.5" />
       </button>
     </div>
   )

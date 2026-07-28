@@ -22,6 +22,77 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("AiRecruitmentPlatform.Domain.Entities.AuditLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("action");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_on");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("longtext")
+                        .HasColumnName("details");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("longtext")
+                        .HasColumnName("ip_address");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("modified_on");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("severity");
+
+                    b.Property<string>("Target")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("target");
+
+                    b.Property<string>("UserEmail")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("user_email");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_audit_logs");
+
+                    b.ToTable("audit_logs", (string)null);
+                });
+
             modelBuilder.Entity("AiRecruitmentPlatform.Domain.Entities.CandidateEducation", b =>
                 {
                     b.Property<long>("Id")
@@ -712,6 +783,10 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_verified");
 
                     b.Property<string>("Location")
                         .HasColumnType("longtext")
@@ -1665,6 +1740,76 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("job_skills", (string)null);
                 });
 
+            modelBuilder.Entity("AiRecruitmentPlatform.Domain.Entities.Notification", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_on");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_read");
+
+                    b.Property<string>("LinkUrl")
+                        .HasColumnType("longtext")
+                        .HasColumnName("link_url");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("message");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("modified_on");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("read_at");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("title");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("type");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notifications");
+
+                    b.ToTable("notifications", (string)null);
+                });
+
             modelBuilder.Entity("AiRecruitmentPlatform.Domain.Entities.RecruiterNotificationPreference", b =>
                 {
                     b.Property<long>("Id")
@@ -1857,6 +2002,85 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                     b.ToTable("recruiter_parsed_resumes", (string)null);
                 });
 
+            modelBuilder.Entity("AiRecruitmentPlatform.Domain.Entities.SubscriptionPlan", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("BadgeColor")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("badge_color");
+
+                    b.Property<string>("BillingCycle")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("billing_cycle");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_on");
+
+                    b.Property<long>("DisplayOrder")
+                        .HasColumnType("bigint")
+                        .HasColumnName("display_order");
+
+                    b.Property<string>("FeaturesJson")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("features_json");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("MaxJobs")
+                        .HasColumnType("int")
+                        .HasColumnName("max_jobs");
+
+                    b.Property<int>("MaxUsers")
+                        .HasColumnType("int")
+                        .HasColumnName("max_users");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("modified_by");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("modified_on");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("name");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(65,30)")
+                        .HasColumnName("price");
+
+                    b.Property<int>("SubscribersCount")
+                        .HasColumnType("int")
+                        .HasColumnName("subscribers_count");
+
+                    b.HasKey("Id")
+                        .HasName("pk_subscription_plans");
+
+                    b.ToTable("subscription_plans", (string)null);
+                });
+
             modelBuilder.Entity("AiRecruitmentPlatform.Infrastructure.Identity.Models.ApplicationUser", b =>
                 {
                     b.Property<long>("Id")
@@ -1980,7 +2204,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                         {
                             Id = 1L,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a5dea6fd-22e3-46d9-8ffe-048dcc2b2590",
+                            ConcurrencyStamp = "a76a614a-abd0-43f7-b86a-9dcfb1e21422",
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@airecruitmentplatform.com",
                             EmailConfirmed = true,
@@ -1990,7 +2214,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@AIRECRUITMENTPLATFORM.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDDs27FQEDDzmjrFDujrH3p7X22vH3SMFBxNsSYbJjpsnskNVbxZsK+AG26dYzo0yQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIhxNMsARpGzuanYGRtr201dhDadr1YZ8eJ/TERmmksu0QIPEbPwbGdx+bigazVapw==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "F3A1877B-B990-4F13-8E87-C90DF070B2C9",
                             TwoFactorEnabled = false,

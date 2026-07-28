@@ -95,6 +95,13 @@ namespace AiRecruitmentPlatform.Application.Profiles
                 .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.JobApplication != null && src.JobApplication.JobPosting != null && src.JobApplication.JobPosting.CompanyProfile != null ? src.JobApplication.JobPosting.CompanyProfile.CompanyName : string.Empty))
                 .ForMember(dest => dest.CompanyLogoUrl, opt => opt.MapFrom(src => src.JobApplication != null && src.JobApplication.JobPosting != null && src.JobApplication.JobPosting.CompanyProfile != null ? src.JobApplication.JobPosting.CompanyProfile.CompanyLogoUrl : null))
                 .ForMember(dest => dest.Location, opt => opt.MapFrom(src => src.JobApplication != null && src.JobApplication.JobPosting != null ? src.JobApplication.JobPosting.Location : string.Empty));
+
+            // Phase 7 Mappings
+            CreateMap<Notification, DTOs.Notification.NotificationDto>().ReverseMap();
+            CreateMap<AuditLog, DTOs.Admin.AuditLogDto>().ReverseMap();
+            CreateMap<SubscriptionPlan, DTOs.Admin.SubscriptionPlanDto>().ReverseMap();
+            CreateMap<DTOs.Admin.CreateSubscriptionPlanDto, SubscriptionPlan>();
+            CreateMap<DTOs.Admin.UpdateSubscriptionPlanDto, SubscriptionPlan>();
         }
     }
 }

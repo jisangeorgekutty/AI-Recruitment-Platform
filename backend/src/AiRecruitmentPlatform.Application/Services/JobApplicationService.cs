@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AiRecruitmentPlatform.Application.DTOs.Job;
+using AiRecruitmentPlatform.Application.DTOs.Notification;
 using AiRecruitmentPlatform.Application.Interfaces.Repositories;
 using AiRecruitmentPlatform.Application.Interfaces.Services;
 using AiRecruitmentPlatform.Domain.Entities;
@@ -17,6 +18,7 @@ namespace AiRecruitmentPlatform.Application.Services
         private readonly ICandidateResumeRepository _candidateResumeRepository;
         private readonly ICompanyProfileRepository _companyProfileRepository;
         private readonly IIdentityService _identityService;
+        private readonly INotificationService _notificationService;
         private readonly IFileService _fileService;
         private readonly IMapper _mapper;
 
@@ -27,6 +29,7 @@ namespace AiRecruitmentPlatform.Application.Services
             ICandidateResumeRepository candidateResumeRepository,
             ICompanyProfileRepository companyProfileRepository,
             IIdentityService identityService,
+            INotificationService notificationService,
             IFileService fileService,
             IMapper mapper)
         {
@@ -36,6 +39,7 @@ namespace AiRecruitmentPlatform.Application.Services
             _candidateResumeRepository = candidateResumeRepository;
             _companyProfileRepository = companyProfileRepository;
             _identityService = identityService;
+            _notificationService = notificationService;
             _fileService = fileService;
             _mapper = mapper;
         }
@@ -60,63 +64,55 @@ namespace AiRecruitmentPlatform.Application.Services
                 throw new InvalidOperationException("You have already applied for this job.");
             }
 
-            string? customResumeUrl = null;
-            if (applyDto.CustomResumeFile != null)
-            {
-                customResumeUrl = await _fileService.UploadImageAsync(applyDto.CustomResumeFile, "resumes/applications");
-            }
-
             var application = new JobApplication
             {
                 JobPostingId = applyDto.JobPostingId,
                 CandidateProfileId = candidateProfile.Id,
                 CandidateResumeId = applyDto.CandidateResumeId,
-                CustomResumeUrl = customResumeUrl,
                 CoverLetter = applyDto.CoverLetter,
                 Status = "Applied",
                 AppliedDate = DateTime.UtcNow
             };
 
-            if (applyDto.Answers != null && applyDto.Answers.Count > 0)
+            var added = await _jobApplicationRepository.Add(application);
+            await _jobApplicationRepository.SaveChanges();
+
+            // Trigger Notifications
+            try
             {
-                foreach (var ansDto in applyDto.Answers)
+                // Confirmation to Candidate
+                await _notificationService.CreateAndSendNotificationAsync(new CreateNotificationDto
                 {
-                    application.Answers.Add(new JobApplicationAnswer
+                    UserId = userId,
+                    Title = "Application Submitted",
+                    Message = $"Your application for {jobPosting.Title} has been submitted successfully.",
+                    Type = "ApplicationStatus",
+                    LinkUrl = "/candidate/applications"
+                });
+
+                // Alert to Recruiter (if company profile available)
+                var company = await _companyProfileRepository.Get(jobPosting.CompanyProfileId);
+                if (company != null && company.UserId > 0)
+                {
+                    await _notificationService.CreateAndSendNotificationAsync(new CreateNotificationDto
                     {
-                        JobScreeningQuestionId = ansDto.JobScreeningQuestionId,
-                        AnswerText = ansDto.AnswerText
+                        UserId = company.UserId,
+                        Title = "New Job Application Received",
+                        Message = $"A new application was received for {jobPosting.Title}.",
+                        Type = "ApplicationStatus",
+                        LinkUrl = "/recruiter/candidates"
                     });
                 }
             }
+            catch { }
 
-            await _jobApplicationRepository.Add(application);
-
-            // Increment ApplicationsCount on JobPosting
-            jobPosting.ApplicationsCount++;
-            await _jobPostingRepository.Update(jobPosting);
-            await _jobApplicationRepository.SaveChanges();
-
-            var created = await _jobApplicationRepository.GetByIdWithDetailsAsync(application.Id);
-            var dto = _mapper.Map<JobApplicationDto>(created!);
-
-            var userBasic = await _identityService.GetUserBasicInfoAsync(userId);
-            if (userBasic.HasValue)
-            {
-                dto.CandidateName = $"{userBasic.Value.FirstName} {userBasic.Value.LastName}".Trim();
-                dto.CandidateEmail = userBasic.Value.Email;
-                dto.CandidatePhone = userBasic.Value.Phone;
-            }
-
-            return dto;
+            return _mapper.Map<JobApplicationDto>(added);
         }
 
         public async Task<IEnumerable<JobApplicationDto>> GetMyApplicationsAsync(long userId)
         {
             var candidateProfile = await _candidateProfileRepository.GetFullProfileByUserIdAsync(userId);
-            if (candidateProfile == null)
-            {
-                return new List<JobApplicationDto>();
-            }
+            if (candidateProfile == null) return new List<JobApplicationDto>();
 
             var applications = await _jobApplicationRepository.GetCandidateApplicationsAsync(candidateProfile.Id);
             var dtos = _mapper.Map<List<JobApplicationDto>>(applications);
@@ -189,6 +185,27 @@ namespace AiRecruitmentPlatform.Application.Services
             application.Status = newStatus;
             await _jobApplicationRepository.Update(application);
             await _jobApplicationRepository.SaveChanges();
+
+            // Trigger Notification to Candidate
+            try
+            {
+                var candidateProfile = await _candidateProfileRepository.Get(application.CandidateProfileId);
+                if (candidateProfile != null && candidateProfile.UserId > 0)
+                {
+                    var jobPosting = await _jobPostingRepository.Get(application.JobPostingId);
+                    var jobTitle = jobPosting?.Title ?? "Job";
+                    await _notificationService.CreateAndSendNotificationAsync(new CreateNotificationDto
+                    {
+                        UserId = candidateProfile.UserId,
+                        Title = "Application Status Updated",
+                        Message = $"Your application status for {jobTitle} has been updated to {newStatus}.",
+                        Type = "ApplicationStatus",
+                        LinkUrl = "/candidate/applications"
+                    });
+                }
+            }
+            catch { }
+
             return true;
         }
     }

@@ -282,12 +282,15 @@ export interface ResumeAtsAnalysis {
 
 export interface Notification {
   id: string
-  type: 'application' | 'interview' | 'offer' | 'system' | 'message' | 'reminder'
+  type: string
   title: string
   message: string
   read: boolean
+  isRead?: boolean
   link?: string
+  linkUrl?: string
   createdAt: string
+  createdOn?: string
 }
 
 export interface DashboardStats {
@@ -306,10 +309,12 @@ export interface DashboardStats {
 
 export interface Activity {
   id: string
-  type: 'application_received' | 'interview_scheduled' | 'interview_completed' | 'offer_sent' | 'offer_accepted' | 'candidate_hired' | 'candidate_rejected' | 'job_published' | 'note_added'
+  type: 'application_received' | 'interview_scheduled' | 'interview_completed' | 'offer_sent' | 'offer_accepted' | 'candidate_hired' | 'candidate_rejected' | 'job_published' | 'note_added' | string
   title: string
-  description: string
-  user: { name: string; avatar?: string }
+  description?: string
+  user?: { name: string; avatar?: string }
+  userName?: string
+  userAvatar?: string
   timestamp: string
 }
 

@@ -1,15 +1,15 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { Menu, X, LogOut, Bell, Moon, Sun, ChevronDown, Search } from 'lucide-react'
+import { Menu, X, LogOut, Moon, Sun, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/logo'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '@/store/auth-store'
 import { useThemeStore } from '@/store/theme-store'
+import { NotificationBell } from '@/components/notification-bell'
+import { NotificationDropdown } from '@/features/notifications/components/notification-dropdown'
 import {
   LayoutDashboard,
   Send,
@@ -20,6 +20,7 @@ import {
   Calendar,
   History,
   Gift,
+  Bell,
   Settings,
 } from 'lucide-react'
 
@@ -39,6 +40,7 @@ const navItems = [
 
 export function CandidateLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [showNotifications, setShowNotifications] = useState(false)
   const { user, logout } = useAuthStore()
   const { theme, setTheme } = useThemeStore()
   const navigate = useNavigate()
@@ -147,12 +149,10 @@ export function CandidateLayout() {
             <Button variant="ghost" size="icon" onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}>
               {resolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/candidate/notifications')} className="relative">
-              <Bell className="h-4 w-4" />
-              <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-destructive">
-                <span className="sr-only">Notifications</span>
-              </span>
-            </Button>
+            <div className="relative">
+              <NotificationBell onClick={() => setShowNotifications(!showNotifications)} />
+              {showNotifications && <NotificationDropdown onClose={() => setShowNotifications(false)} />}
+            </div>
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
             </Button>

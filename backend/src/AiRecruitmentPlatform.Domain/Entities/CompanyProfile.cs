@@ -17,5 +17,6 @@ namespace AiRecruitmentPlatform.Domain.Entities
         public string? ContactPhone { get; set; }
         public int? EstablishedYear { get; set; }
         public string? RegistrationNumber { get; set; }
+        public bool IsVerified { get; set; } = false;
     }
 }

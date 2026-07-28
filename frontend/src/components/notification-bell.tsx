@@ -1,5 +1,8 @@
+import { useEffect } from 'react'
 import { Bell } from 'lucide-react'
 import { useNotificationStore } from '@/store/notification-store'
+import { notificationService } from '@/services/notification.service'
+import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 
 interface NotificationBellProps {
@@ -8,7 +11,20 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ onClick, className }: NotificationBellProps) {
-  const unreadCount = useNotificationStore((state) => state.unreadCount)
+  const { unreadCount, setNotifications, setUnreadCount } = useNotificationStore()
+
+  const { data } = useQuery({
+    queryKey: ['header-bell-notifications'],
+    queryFn: () => notificationService.list(),
+    refetchInterval: 10000,
+  })
+
+  useEffect(() => {
+    if (data) {
+      setNotifications(data.data ?? [])
+      setUnreadCount(data.unreadCount ?? 0)
+    }
+  }, [data, setNotifications, setUnreadCount])
 
   return (
     <button
