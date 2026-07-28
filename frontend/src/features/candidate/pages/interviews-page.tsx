@@ -11,14 +11,17 @@ import { interviewService } from '@/services/interview.service'
 import { useQuery } from '@tanstack/react-query'
 import { Calendar, Clock, Video, Bot, Loader2 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import type { Interview } from '@/types'
 
 export default function CandidateInterviewsPage() {
   const { setActiveScreeningInterview } = useInterviewStore()
 
-  const { data: upcomingInterviews = [], isLoading } = useQuery({
-    queryKey: ['candidate-interviews'],
+  const { data, isLoading } = useQuery({
+    queryKey: ['candidate-upcoming-interviews'],
     queryFn: () => interviewService.getUpcoming(),
   })
+
+  const upcomingInterviews: Interview[] = Array.isArray(data) ? data : []
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
@@ -33,7 +36,7 @@ export default function CandidateInterviewsPage() {
         <EmptyState icon={<Calendar className="h-12 w-12 text-slate-500" />} title="No upcoming interviews" description="Interviews will appear here once scheduled" />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {upcomingInterviews.map((interview) => (
+          {upcomingInterviews.map((interview: Interview) => (
             <Card key={interview.id}>
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
