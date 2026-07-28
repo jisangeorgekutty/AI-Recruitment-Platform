@@ -55,9 +55,9 @@ const AdminPaymentsPage = lazy(() => import('@/features/admin/pages/payments-pag
 const AdminAuditLogsPage = lazy(() => import('@/features/admin/pages/audit-logs-page'))
 const AdminSettingsPage = lazy(() => import('@/features/admin/pages/settings-page'))
 
-function SuspenseWrapper({ children }: { children: React.ReactNode }) {
+function SuspenseWrapper({ children, type = 'detail' }: { children: React.ReactNode; type?: 'card' | 'table' | 'list' | 'detail' | 'chart' | 'landing' }) {
   return (
-    <Suspense fallback={<LoadingSkeleton type="detail" />}>
+    <Suspense fallback={<LoadingSkeleton type={type} />}>
       {children}
     </Suspense>
   )
@@ -89,7 +89,7 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: <SuspenseWrapper><LandingPage /></SuspenseWrapper>,
+    element: <SuspenseWrapper type="landing"><LandingPage /></SuspenseWrapper>,
   },
   {
     element: <AuthLayout />,
