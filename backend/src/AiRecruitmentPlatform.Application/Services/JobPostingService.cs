@@ -17,6 +17,7 @@ namespace AiRecruitmentPlatform.Application.Services
         private readonly ICompanyProfileRepository _companyRepo;
         private readonly IRepository<JobSkill> _skillRepo;
         private readonly IRepository<JobScreeningQuestion> _questionRepo;
+        private readonly IAuditLogService _auditLogService;
         private readonly IMapper _mapper;
 
         public JobPostingService(
@@ -24,12 +25,14 @@ namespace AiRecruitmentPlatform.Application.Services
             ICompanyProfileRepository companyRepo,
             IRepository<JobSkill> skillRepo,
             IRepository<JobScreeningQuestion> questionRepo,
+            IAuditLogService auditLogService,
             IMapper mapper)
         {
             _jobRepo = jobRepo;
             _companyRepo = companyRepo;
             _skillRepo = skillRepo;
             _questionRepo = questionRepo;
+            _auditLogService = auditLogService;
             _mapper = mapper;
         }
 
@@ -99,6 +102,8 @@ namespace AiRecruitmentPlatform.Application.Services
             // EF Core will save the job and its child collections in a single SaveChanges call
             await _jobRepo.Add(job);
             await _jobRepo.SaveChanges();
+
+            await _auditLogService.LogAsync(userId, company.ContactEmail ?? $"user_{userId}@platform.local", "Job Posting Created", $"Job: {job.Title} (ID: {job.Id})", "info");
 
             return (await GetJobByIdAsync(job.Id))!;
         }

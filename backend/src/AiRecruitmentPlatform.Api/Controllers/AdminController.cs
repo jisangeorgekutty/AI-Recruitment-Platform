@@ -99,6 +99,13 @@ namespace AiRecruitmentPlatform.Api.Controllers
             return Ok(ApiResponse<bool>.SuccessResult(true, "Subscription plan deleted"));
         }
 
+        [HttpGet("payments")]
+        public async Task<IActionResult> GetPayments([FromQuery] string? search)
+        {
+            var payments = await _adminService.GetAdminPaymentsAsync(search);
+            return Ok(ApiResponse<object>.SuccessResult(payments));
+        }
+
         [HttpGet("audit-logs")]
         public async Task<IActionResult> GetAuditLogs([FromQuery] string? search, [FromQuery] string? severity, [FromQuery] int page = 1, [FromQuery] int pageSize = 50)
         {

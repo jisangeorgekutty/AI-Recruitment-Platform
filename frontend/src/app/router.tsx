@@ -32,6 +32,9 @@ const AnalyticsPage = lazy(() => import('@/features/analytics/pages/analytics-pa
 const NotificationsPage = lazy(() => import('@/features/notifications/pages/notifications-page'))
 const SettingsPage = lazy(() => import('@/features/settings/pages/settings-page'))
 const CompanyPage = lazy(() => import('@/features/company/pages/company-page'))
+const BillingPage = lazy(() => import('@/features/billing/pages/billing-page'))
+const SubscriptionSuccessPage = lazy(() => import('@/features/billing/pages/subscription-success-page'))
+const SubscriptionCancelPage = lazy(() => import('@/features/billing/pages/subscription-cancel-page'))
 
 // Candidate Pages
 const CandidateDashboardPage = lazy(() => import('@/features/candidate/pages/dashboard-page'))
@@ -177,6 +180,18 @@ const routes: RouteObject[] = [
       {
         path: 'company',
         element: <ErrorBoundary><SuspenseWrapper><CompanyPage /></SuspenseWrapper></ErrorBoundary>,
+      },
+      {
+        path: 'billing',
+        element: <ErrorBoundary><SuspenseWrapper><BillingPage /></SuspenseWrapper></ErrorBoundary>,
+      },
+      {
+        path: 'subscription/success',
+        element: <ErrorBoundary><SuspenseWrapper><SubscriptionSuccessPage /></SuspenseWrapper></ErrorBoundary>,
+      },
+      {
+        path: 'subscription/cancel',
+        element: <ErrorBoundary><SuspenseWrapper><SubscriptionCancelPage /></SuspenseWrapper></ErrorBoundary>,
       },
     ],
   },

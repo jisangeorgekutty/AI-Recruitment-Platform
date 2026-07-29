@@ -121,6 +121,11 @@ namespace AiRecruitmentPlatform.Infrastructure
             services.AddScoped<IAuditLogService, AuditLogService>();
             services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
 
+            // Payment Registrations
+            services.AddScoped<ICompanySubscriptionRepository, CompanySubscriptionRepository>();
+            services.AddScoped<IPaymentTransactionRepository, PaymentTransactionRepository>();
+            services.AddScoped<IPaymentService, PaymentService>();
+
             return services;
         }
     }

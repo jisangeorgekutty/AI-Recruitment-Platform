@@ -102,7 +102,7 @@ flowchart TD
 
 ---
 
-### 📌 Phase 7: Analytics, Notifications & Administration *(In Progress*
+### 📌 Phase 7: Analytics, Notifications & Administration *(In Progress)*
 
 - [ ] **Real-time Notifications**: Email & In-app alerts for application status updates, interview invitations, and new matches.
 - [ ] **Recruitment Analytics**: Time-to-hire, source effectiveness, applicant funnel metrics.

@@ -11,6 +11,7 @@ import {
   Settings,
   Building2,
   ChevronLeft,
+  CreditCard,
 } from 'lucide-react'
 import { useUiStore } from '@/store/ui-store'
 
@@ -28,6 +29,7 @@ const navItems: NavItem[] = [
   { label: 'Resume Parser', icon: <FileText className="h-4 w-4" />, path: '/recruiter/resume-analysis' },
   { label: 'Analytics', icon: <BarChart3 className="h-4 w-4" />, path: '/recruiter/analytics' },
   { label: 'Company', icon: <Building2 className="h-4 w-4" />, path: '/recruiter/company' },
+  { label: 'Billing & Plans', icon: <CreditCard className="h-4 w-4" />, path: '/recruiter/billing' },
   { label: 'Settings', icon: <Settings className="h-4 w-4" />, path: '/recruiter/settings' },
 ]
 

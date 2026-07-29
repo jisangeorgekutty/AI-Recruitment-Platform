@@ -30,6 +30,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Identity
         private readonly ApplicationDbContext _dbContext;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly IAuditLogService _auditLogService;
         private readonly ILogger<AuthService> _logger;
 
         public AuthService(
@@ -38,6 +39,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Identity
             ApplicationDbContext dbContext,
             IConfiguration configuration,
             IEmailService emailService,
+            IAuditLogService auditLogService,
             ILogger<AuthService> logger)
         {
             _userManager = userManager;
@@ -45,6 +47,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Identity
             _dbContext = dbContext;
             _configuration = configuration;
             _emailService = emailService;
+            _auditLogService = auditLogService;
             _logger = logger;
         }
 
@@ -62,6 +65,7 @@ namespace AiRecruitmentPlatform.Infrastructure.Identity
                 throw new InvalidOperationException("Invalid credentials.");
             }
 
+            await _auditLogService.LogAsync(user.Id, user.Email ?? string.Empty, "User Login", "Portal", "info");
             return await GenerateAuthenticationResponseAsync(user);
         }
 
@@ -123,6 +127,8 @@ namespace AiRecruitmentPlatform.Infrastructure.Identity
             {
                 _logger.LogWarning(ex, "Failed to send welcome email to {Email}", user.Email);
             }
+
+            await _auditLogService.LogAsync(user.Id, user.Email, "User Registered", $"Role: {request.Role}", "info");
 
             return new RegistrationResponse
             {

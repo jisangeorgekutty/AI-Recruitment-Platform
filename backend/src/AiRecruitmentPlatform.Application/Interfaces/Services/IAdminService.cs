@@ -12,5 +12,6 @@ namespace AiRecruitmentPlatform.Application.Interfaces.Services
         Task<bool> UpdateUserRoleAsync(long userId, string newRole);
         Task<IReadOnlyList<AdminCompanyListDto>> GetCompaniesAsync(string? search, string? status);
         Task<bool> UpdateCompanyStatusAsync(long companyId, string status);
+        Task<IReadOnlyList<AdminPaymentDto>> GetAdminPaymentsAsync(string? search);
     }
 }

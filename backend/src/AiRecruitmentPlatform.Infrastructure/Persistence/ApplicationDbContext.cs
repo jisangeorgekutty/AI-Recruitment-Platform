@@ -43,6 +43,8 @@ namespace AiRecruitmentPlatform.Infrastructure.Persistence
         public DbSet<Notification> Notifications { get; set; } = null!;
         public DbSet<AuditLog> AuditLogs { get; set; } = null!;
         public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; } = null!;
+        public DbSet<CompanySubscription> CompanySubscriptions { get; set; } = null!;
+        public DbSet<PaymentTransaction> PaymentTransactions { get; set; } = null!;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

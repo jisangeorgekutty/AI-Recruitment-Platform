@@ -10,5 +10,6 @@ namespace AiRecruitmentPlatform.Application.DTOs.Admin
         public int TotalActiveJobs { get; set; }
         public int TotalApplications { get; set; }
         public decimal TotalMonthlyRevenue { get; set; }
+        public System.Collections.Generic.List<RecentUserDto> RecentUsers { get; set; } = new();
     }
 }

@@ -50,6 +50,26 @@ export interface AuditLog {
   createdOn: string
 }
 
+export interface RecentUser {
+  name: string
+  email: string
+  role: string
+  plan: string
+  date: string
+  createdOn: string
+}
+
+export interface AdminPayment {
+  id: string
+  company: string
+  amount: string
+  numericAmount: number
+  plan: string
+  status: string
+  date: string
+  method: string
+}
+
 export interface AdminDashboardStats {
   totalUsers: number
   activeCandidates: number
@@ -59,6 +79,7 @@ export interface AdminDashboardStats {
   totalActiveJobs: number
   totalApplications: number
   totalMonthlyRevenue: number
+  recentUsers?: RecentUser[]
 }
 
 export const adminService = {
@@ -109,6 +130,11 @@ export const adminService = {
 
   async deletePlan(id: number) {
     const response = await api.delete<ApiResponse<boolean>>(`/admin/plans/${id}`)
+    return response.data.data
+  },
+
+  async getPayments(params?: { search?: string }) {
+    const response = await api.get<ApiResponse<AdminPayment[]>>('/admin/payments', { params })
     return response.data.data
   },
 

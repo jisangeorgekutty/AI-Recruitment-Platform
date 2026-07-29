@@ -16,6 +16,7 @@ namespace AiRecruitmentPlatform.Application.Services
         private readonly IJobPostingRepository _jobPostingRepository;
         private readonly IJobApplicationRepository _jobApplicationRepository;
         private readonly ISubscriptionPlanRepository _subscriptionPlanRepository;
+        private readonly IPaymentTransactionRepository _paymentTransactionRepository;
         private readonly IAuditLogService _auditLogService;
         private readonly IMapper _mapper;
 
@@ -25,6 +26,7 @@ namespace AiRecruitmentPlatform.Application.Services
             IJobPostingRepository jobPostingRepository,
             IJobApplicationRepository jobApplicationRepository,
             ISubscriptionPlanRepository subscriptionPlanRepository,
+            IPaymentTransactionRepository paymentTransactionRepository,
             IAuditLogService auditLogService,
             IMapper mapper)
         {
@@ -33,6 +35,7 @@ namespace AiRecruitmentPlatform.Application.Services
             _jobPostingRepository = jobPostingRepository;
             _jobApplicationRepository = jobApplicationRepository;
             _subscriptionPlanRepository = subscriptionPlanRepository;
+            _paymentTransactionRepository = paymentTransactionRepository;
             _auditLogService = auditLogService;
             _mapper = mapper;
         }
@@ -46,50 +49,54 @@ namespace AiRecruitmentPlatform.Application.Services
             var companies = await _companyProfileRepository.GetAllActive();
             var jobs = await _jobPostingRepository.GetAllActive();
             var applications = await _jobApplicationRepository.GetAllActive();
+            var transactions = await _paymentTransactionRepository.GetAllActive();
 
             int totalUsers = candidateIds.Count + recruiterIds.Count + adminIds.Count;
-            if (totalUsers == 0) totalUsers = 944;
+            var now = DateTime.UtcNow;
+            decimal monthlyRevenue = transactions
+                .Where(t => t.Status == "succeeded" && t.CreatedOn.Month == now.Month && t.CreatedOn.Year == now.Year)
+                .Sum(t => t.Amount);
+
+            var recentUsersFromDb = await _identityService.GetRecentUsersAsync(5);
+            var recentUserDtos = recentUsersFromDb.Select(u => new RecentUserDto
+            {
+                Name = u.Name,
+                Email = u.Email,
+                Role = u.Role,
+                Plan = u.Role.Equals("recruiter", StringComparison.OrdinalIgnoreCase) ? "Professional" : "Free",
+                Date = u.CreatedOn.ToString("g"),
+                CreatedOn = u.CreatedOn
+            }).ToList();
 
             return new AdminDashboardStatsDto
             {
                 TotalUsers = totalUsers,
-                ActiveCandidates = candidateIds.Count > 0 ? candidateIds.Count : 584,
-                ActiveRecruiters = recruiterIds.Count > 0 ? recruiterIds.Count : 312,
-                TotalCompanies = companies.Count > 0 ? companies.Count : 48,
+                ActiveCandidates = candidateIds.Count,
+                ActiveRecruiters = recruiterIds.Count,
+                TotalCompanies = companies.Count,
                 PendingCompanyVerifications = companies.Count(c => c.IsVerified == false),
-                TotalActiveJobs = jobs.Count > 0 ? jobs.Count : 142,
-                TotalApplications = applications.Count > 0 ? applications.Count : 1240,
-                TotalMonthlyRevenue = 42500
+                TotalActiveJobs = jobs.Count(j => j.Status.Equals("active", StringComparison.OrdinalIgnoreCase)),
+                TotalApplications = applications.Count,
+                TotalMonthlyRevenue = monthlyRevenue,
+                RecentUsers = recentUserDtos
             };
         }
 
         public async Task<IReadOnlyList<AdminUserListDto>> GetUsersAsync(string? search, string? role, string? status)
         {
-            var users = new List<AdminUserListDto>
+            var usersFromDb = await _identityService.GetAllUsersInfoAsync(search, role, status);
+            return usersFromDb.Select(u => new AdminUserListDto
             {
-                new AdminUserListDto { Id = 1, Name = "Sarah Chen", Email = "sarah@google.com", Role = "recruiter", Plan = "Enterprise", Status = "active", JobsCount = 24, Joined = "Jan 2026", CreatedOn = DateTime.UtcNow.AddMonths(-6) },
-                new AdminUserListDto { Id = 2, Name = "Alex Kim", Email = "alex@stripe.com", Role = "candidate", Plan = "Free", Status = "active", JobsCount = 5, Joined = "Mar 2026", CreatedOn = DateTime.UtcNow.AddMonths(-4) },
-                new AdminUserListDto { Id = 3, Name = "Maria Lopez", Email = "maria@meta.com", Role = "recruiter", Plan = "Professional", Status = "suspended", JobsCount = 12, Joined = "Feb 2026", CreatedOn = DateTime.UtcNow.AddMonths(-5) },
-                new AdminUserListDto { Id = 4, Name = "David Miller", Email = "david@apple.com", Role = "admin", Plan = "Enterprise", Status = "active", JobsCount = 0, Joined = "Jan 2026", CreatedOn = DateTime.UtcNow.AddMonths(-7) }
-            };
-
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                var term = search.ToLower();
-                users = users.Where(u => u.Name.ToLower().Contains(term) || u.Email.ToLower().Contains(term)).ToList();
-            }
-
-            if (!string.IsNullOrWhiteSpace(role))
-            {
-                users = users.Where(u => u.Role.Equals(role, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            if (!string.IsNullOrWhiteSpace(status))
-            {
-                users = users.Where(u => u.Status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            return await Task.FromResult(users);
+                Id = u.Id,
+                Name = u.Name,
+                Email = u.Email,
+                Role = u.Role,
+                Plan = u.Role.Equals("recruiter", StringComparison.OrdinalIgnoreCase) ? "Professional" : "Free",
+                Status = u.Status,
+                JobsCount = 0,
+                Joined = u.Joined,
+                CreatedOn = u.CreatedOn
+            }).ToList();
         }
 
         public async Task<bool> UpdateUserStatusAsync(long userId, string status)
@@ -110,32 +117,19 @@ namespace AiRecruitmentPlatform.Application.Services
             var dbCompanies = await _companyProfileRepository.GetAllActive();
             var result = new List<AdminCompanyListDto>();
 
-            if (dbCompanies.Any())
+            foreach (var c in dbCompanies)
             {
-                foreach (var c in dbCompanies)
+                result.Add(new AdminCompanyListDto
                 {
-                    result.Add(new AdminCompanyListDto
-                    {
-                        Id = c.Id,
-                        Name = c.CompanyName ?? "Unnamed Company",
-                        Email = c.ContactEmail ?? "admin@company.com",
-                        Industry = c.Industry ?? "Technology",
-                        Plan = "Professional",
-                        Status = c.IsVerified ? "verified" : "pending",
-                        Employees = c.CompanySize ?? "10-50",
-                        ActiveJobsCount = 5,
-                        CreatedOn = c.CreatedOn
-                    });
-                }
-            }
-            else
-            {
-                result.AddRange(new[]
-                {
-                    new AdminCompanyListDto { Id = 1, Name = "Google", Email = "admin@google.com", Industry = "Technology", Plan = "Enterprise", Status = "verified", Employees = "10,000+", ActiveJobsCount = 45, CreatedOn = DateTime.UtcNow.AddMonths(-8) },
-                    new AdminCompanyListDto { Id = 2, Name = "Stripe", Email = "admin@stripe.com", Industry = "Fintech", Plan = "Professional", Status = "verified", Employees = "5,000+", ActiveJobsCount = 28, CreatedOn = DateTime.UtcNow.AddMonths(-6) },
-                    new AdminCompanyListDto { Id = 3, Name = "Figma", Email = "admin@figma.com", Industry = "Design", Plan = "Professional", Status = "pending", Employees = "1,000+", ActiveJobsCount = 12, CreatedOn = DateTime.UtcNow.AddMonths(-2) },
-                    new AdminCompanyListDto { Id = 4, Name = "StartupXYZ", Email = "hello@startupxyz.io", Industry = "SaaS", Plan = "Free", Status = "pending", Employees = "10-50", ActiveJobsCount = 3, CreatedOn = DateTime.UtcNow.AddDays(-10) }
+                    Id = c.Id,
+                    Name = c.CompanyName ?? "Unnamed Company",
+                    Email = c.ContactEmail ?? "admin@company.com",
+                    Industry = c.Industry ?? "Technology",
+                    Plan = "Professional",
+                    Status = c.IsVerified ? "verified" : "pending",
+                    Employees = c.CompanySize ?? "10-50",
+                    ActiveJobsCount = 0,
+                    CreatedOn = c.CreatedOn
                 });
             }
 
@@ -165,6 +159,40 @@ namespace AiRecruitmentPlatform.Application.Services
 
             await _auditLogService.LogAsync(null, "admin@system.local", "Company Status Updated", $"Company {companyId} marked as {status}", "medium");
             return true;
+        }
+
+        public async Task<IReadOnlyList<AdminPaymentDto>> GetAdminPaymentsAsync(string? search)
+        {
+            var dbTransactions = await _paymentTransactionRepository.GetAllActive();
+            var companies = await _companyProfileRepository.GetAllActive();
+            var plans = await _subscriptionPlanRepository.GetAllActive();
+
+            var list = new List<AdminPaymentDto>();
+            foreach (var t in dbTransactions)
+            {
+                var company = companies.FirstOrDefault(c => c.Id == t.CompanyProfileId);
+                var plan = plans.FirstOrDefault(p => p.Id == t.SubscriptionPlanId);
+
+                list.Add(new AdminPaymentDto
+                {
+                    Id = string.IsNullOrEmpty(t.StripeSessionId) ? $"TXN-{t.Id:D5}" : t.StripeSessionId,
+                    Company = company?.CompanyName ?? $"Company #{t.CompanyProfileId}",
+                    Amount = $"${t.Amount:F2}",
+                    NumericAmount = t.Amount,
+                    Plan = plan?.Name ?? "Subscription",
+                    Status = t.Status == "succeeded" ? "paid" : t.Status,
+                    Date = t.CreatedOn,
+                    Method = "Stripe"
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.ToLower();
+                list = list.Where(p => p.Id.ToLower().Contains(term) || p.Company.ToLower().Contains(term) || p.Plan.ToLower().Contains(term) || p.Status.ToLower().Contains(term)).ToList();
+            }
+
+            return list.OrderByDescending(p => p.Date).ToList();
         }
     }
 }

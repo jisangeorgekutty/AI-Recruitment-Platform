@@ -39,13 +39,7 @@ export default function AuditLogsPage() {
     }
   }, [fetchedLogs, setAuditLogs])
 
-  const list = auditLogs.length > 0 ? auditLogs : fetchedLogs ?? [
-    { id: 1, action: 'User deleted', userEmail: 'admin@hiregen.ai', target: 'spam@example.com', severity: 'high', createdOn: '2026-07-20T14:30:00Z' },
-    { id: 2, action: 'Plan changed', userEmail: 'admin@hiregen.ai', target: 'Google → Enterprise', severity: 'medium', createdOn: '2026-07-20T12:00:00Z' },
-    { id: 3, action: 'New admin login', userEmail: 'admin@hiregen.ai', target: 'IP: 192.168.1.1', severity: 'info', createdOn: '2026-07-20T09:15:00Z' },
-    { id: 4, action: 'New user registered', userEmail: 'james@apple.com', target: 'Candidate account', severity: 'info', createdOn: '2026-07-19T16:45:00Z' },
-    { id: 5, action: 'Security alert', userEmail: 'system', target: 'Failed login attempt x5', severity: 'critical', createdOn: '2026-07-19T03:20:00Z' },
-  ]
+  const list = fetchedLogs ?? auditLogs
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">

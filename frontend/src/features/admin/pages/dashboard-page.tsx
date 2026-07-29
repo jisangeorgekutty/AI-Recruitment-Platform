@@ -24,18 +24,13 @@ export default function AdminDashboardPage() {
   const statsData = dashboardStats ?? fetchedStats
 
   const statCards = [
-    { label: 'Total Users', value: statsData?.totalUsers ?? 944, change: '+12.5%', icon: Users, color: 'text-blue-600 bg-blue-100' },
-    { label: 'Active Jobs', value: statsData?.totalActiveJobs ?? 142, change: '+8.2%', icon: Briefcase, color: 'text-emerald-600 bg-emerald-100' },
-    { label: 'Companies', value: statsData?.totalCompanies ?? 48, change: '+5.7%', icon: Building2, color: 'text-violet-600 bg-violet-100' },
-    { label: 'Revenue (MTD)', value: `$${(statsData?.totalMonthlyRevenue ?? 42500).toLocaleString()}`, change: '+18.3%', icon: DollarSign, color: 'text-amber-600 bg-amber-100' },
+    { label: 'Total Users', value: statsData?.totalUsers ?? 0, change: 'Real-time', icon: Users, color: 'text-blue-600 bg-blue-100' },
+    { label: 'Active Jobs', value: statsData?.totalActiveJobs ?? 0, change: 'Active', icon: Briefcase, color: 'text-emerald-600 bg-emerald-100' },
+    { label: 'Companies', value: statsData?.totalCompanies ?? 0, change: 'Registered', icon: Building2, color: 'text-violet-600 bg-violet-100' },
+    { label: 'Revenue (MTD)', value: `$${(statsData?.totalMonthlyRevenue ?? 0).toLocaleString()}`, change: 'Current Month', icon: DollarSign, color: 'text-amber-600 bg-amber-100' },
   ]
 
-  const recentUsers = [
-    { name: 'Sarah Chen', email: 'sarah@google.com', role: 'recruiter', plan: 'Enterprise', date: '2 min ago' },
-    { name: 'Alex Kim', email: 'alex@stripe.com', role: 'candidate', plan: 'Free', date: '15 min ago' },
-    { name: 'Maria Lopez', email: 'maria@meta.com', role: 'recruiter', plan: 'Professional', date: '1 hour ago' },
-    { name: 'James Wilson', email: 'james@apple.com', role: 'candidate', plan: 'Free', date: '3 hours ago' },
-  ]
+  const recentUsersList = statsData?.recentUsers ?? []
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
@@ -50,7 +45,7 @@ export default function AdminDashboardPage() {
                 <div className={`rounded-lg p-2 ${s.color}`}><s.icon className="h-4 w-4" /></div>
               </div>
               <p className="text-2xl font-bold">{isLoading ? '...' : s.value}</p>
-              <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1"><TrendingUp className="h-3 w-3" />{s.change} vs last month</p>
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><TrendingUp className="h-3 w-3 text-emerald-600" />{s.change}</p>
             </CardContent>
           </Card>
         ))}
@@ -62,25 +57,29 @@ export default function AdminDashboardPage() {
           <CardContent className="h-64 flex items-center justify-center text-muted-foreground">
             <div className="text-center">
               <BarChart3 className="h-10 w-10 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Real-time metrics active ({statsData?.totalApplications ?? 1240} applications processed)</p>
+              <p className="text-sm">Real-time metrics active ({statsData?.totalApplications ?? 0} applications processed)</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader><CardTitle>Recent Platform Users</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            {recentUsers.map((u) => (
-              <div key={u.email} className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">{u.name}</p>
-                  <p className="text-xs text-muted-foreground">{u.email}</p>
+            {recentUsersList.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4 text-center">No recent registered users</p>
+            ) : (
+              recentUsersList.map((u) => (
+                <div key={u.email} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">{u.name}</p>
+                    <p className="text-xs text-muted-foreground">{u.email}</p>
+                  </div>
+                  <div className="text-right text-xs text-muted-foreground">
+                    <p className="capitalize">{u.role} - {u.plan}</p>
+                    <p>{u.date}</p>
+                  </div>
                 </div>
-                <div className="text-right text-xs text-muted-foreground">
-                  <p className="capitalize">{u.role} - {u.plan}</p>
-                  <p>{u.date}</p>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
       </div>

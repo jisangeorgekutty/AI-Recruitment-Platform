@@ -102,6 +102,10 @@ namespace AiRecruitmentPlatform.Application.Profiles
             CreateMap<SubscriptionPlan, DTOs.Admin.SubscriptionPlanDto>().ReverseMap();
             CreateMap<DTOs.Admin.CreateSubscriptionPlanDto, SubscriptionPlan>();
             CreateMap<DTOs.Admin.UpdateSubscriptionPlanDto, SubscriptionPlan>();
+
+            // Payment Mappings
+            CreateMap<PaymentTransaction, DTOs.Payment.PaymentTransactionDto>()
+                .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.SubscriptionPlan != null ? src.SubscriptionPlan.Name : null));
         }
     }
 }
